@@ -4,6 +4,7 @@ import { API_URL } from "../constants/api";
 
 export const useAuthStore = create((set) => ({
   user: null,
+  setUser: (user) => set({ user }),
   token: null,
   isLoading: false,
   isCheckingAuth: true,

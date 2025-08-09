@@ -42,6 +42,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: "Registro Asistencia",
+          // title: "Registro Asistencia",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="document-text-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="create"
+        options={{
           title: "Asistencia",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="checkmark-outline" size={size} color={color} />
@@ -66,6 +76,24 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="create_report_status"
+        options={{
+          title: "Reporte",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="checkbox-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="incidentsUser"
+        options={{
+          title: "Incidentes",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="checkbox-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
@@ -73,11 +101,15 @@ export default function TabLayout() {
 function getHeaderTitle(route) {
   switch (route.name) {
     case "index":
+      return "Registro de Asistencia";
+    case "create":
       return "Registrar Asistencia";
     case "profile":
       return "Mi Perfil";
     case "create_report_incident":
       return "Reportar Incidente";
+    case "incidentsUser":
+      return "Incidentes Reportados";
     default:
       return "";
   }

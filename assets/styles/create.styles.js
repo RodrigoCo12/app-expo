@@ -3,6 +3,22 @@ import { StyleSheet } from "react-native";
 import COLORS from "../../constants/colors";
 
 const styles = StyleSheet.create({
+  statusContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: COLORS.backgroundSecondary,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  statusText: {
+    fontSize: 16,
+    color: COLORS.text,
+    marginBottom: 15,
+  },
+  inactiveButton: {
+    width: "100%",
+    // backgroundColor: COLORS.secondary, // o cualquier color que prefieras para este botón
+  },
   container: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
@@ -61,12 +77,33 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     paddingHorizontal: 12,
   },
+  inputDateContainer: {
+    // flexDirection: "row",
+    // alignItems: "center",
+    width: "45%",
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 12,
+  },
+  inputList: {
+    flexDirection: "row",
+    alignItems: "center",
+    // backgroundColor: "red",
+    width: "100%",
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    paddingHorizontal: 12,
+  },
   inputIcon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 48,
+    // height: 48,
     color: COLORS.textDark,
   },
   textArea: {

@@ -50,7 +50,7 @@ export default function Login() {
           <View style={styles.formContainer}>
             {/* EMAIL */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Username</Text>
+              <Text style={styles.label}>Usuario</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
                   name="mail-outline"
@@ -60,7 +60,7 @@ export default function Login() {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your username"
+                  placeholder="Ingresa tu Usuario"
                   placeholderTextColor={COLORS.placeholderText}
                   value={username}
                   onChangeText={setUsername}
@@ -72,7 +72,7 @@ export default function Login() {
 
             {/* PASSWORD */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>Contraseña</Text>
               <View style={styles.inputContainer}>
                 {/* LEFT ICON */}
                 <Ionicons
@@ -84,7 +84,7 @@ export default function Login() {
                 {/* INPUT */}
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your password"
+                  placeholder="Ingresa tu contraseña"
                   placeholderTextColor={COLORS.placeholderText}
                   value={password}
                   onChangeText={setPassword}

@@ -1,17 +1,33 @@
 // FOREST
 const COLORS = {
-  primary: "#4CAF50",
-  textPrimary: "#2e5a2e",
-  textSecondary: "#688f68",
-  textDark: "#1b361b",
+  primary: "#F22786",
+  textPrimary: "#010D00",
+  textSecondary: "#231e21ff",
+  // textDark: "#1b361b",
+  textDark: "#010D00",
   placeholderText: "#767676",
-  background: "#e8f5e9",
+  background: "#F2f2f2",
+  // background: "#e8f5e9",
   cardBackground: "#f1f8f2",
   inputBackground: "#f4faf5",
-  border: "#c8e6c9",
-  white: "#ffffff",
+  // border: "#c8e6c9",
+  border: "#ddbfcdff",
+  white: "#ffffffff",
   black: "#000000",
 };
+// const COLORS = {
+//   primary: "#4CAF50",
+//   textPrimary: "#2e5a2e",
+//   textSecondary: "#688f68",
+//   textDark: "#1b361b",
+//   placeholderText: "#767676",
+//   background: "#e8f5e9",
+//   cardBackground: "#f1f8f2",
+//   inputBackground: "#f4faf5",
+//   border: "#c8e6c9",
+//   white: "#ffffff",
+//   black: "#000000",
+// };
 
 // RETRO
 /*
