@@ -42,8 +42,7 @@ export default function Signup() {
         <View style={styles.card}>
           {/* HEADER */}
           <View style={styles.header}>
-            <Text style={styles.title}>BookWorm🐛</Text>
-            <Text style={styles.subtitle}>Share your favorite reads</Text>
+            <Text style={styles.title}>Registrate</Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -67,28 +66,6 @@ export default function Signup() {
                 />
               </View>
             </View>
-
-            {/* EMAIL INPUT */}
-            {/* <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <View style={styles.inputContainer}>
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={COLORS.primary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="johndoe@gmail.com"
-                  value={email}
-                  placeholderTextColor={COLORS.placeholderText}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-            </View> */}
 
             {/* PASSWORD INPUT */}
             <View style={styles.inputGroup}>
