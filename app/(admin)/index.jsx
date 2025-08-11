@@ -118,7 +118,7 @@ export default function Reportes() {
     >
       <View style={styles.bookHeader}>
         <View style={styles.userInfo}>
-          <Text style={styles.username}>Reportado por: {item.username}</Text>
+          <Text style={styles.username}>{item.username}</Text>
         </View>
         <Ionicons
           name={expandedId === item._id ? "chevron-up" : "chevron-down"}
@@ -129,7 +129,7 @@ export default function Reportes() {
 
       {item.location && (
         <View style={styles.locationContainer}>
-          <Text style={styles.username}>Ubicación: </Text>
+          <Text style={styles.username}>Puesto: </Text>
           <Text>{getLocationName(item.location)}</Text>
         </View>
       )}

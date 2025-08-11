@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // backgroundColor: "red",
     width: "100%",
+    color: COLORS.textPrimary,
     backgroundColor: COLORS.inputBackground,
     borderRadius: 12,
     borderWidth: 2,

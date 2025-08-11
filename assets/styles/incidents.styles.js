@@ -3,6 +3,74 @@ import { StyleSheet } from "react-native";
 import COLORS from "../../constants/colors";
 
 const styles = StyleSheet.create({
+  dateFilterContainer: {
+    marginTop: 10,
+  },
+  dateFilterButton: {
+    padding: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  dateFilterButtonText: {
+    color: "white",
+  },
+  datePickerContainer: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 5,
+  },
+  selectedDateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 5,
+  },
+  selectedDateText: {
+    marginRight: 10,
+  },
+  dateFilterButton: {
+    backgroundColor: COLORS.primary,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  dateFilterButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+  },
+  datePickerContainer: {
+    marginVertical: 10,
+    width: "100%",
+  },
+  selectedDateContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    backgroundColor: COLORS.lightGray,
+    borderRadius: 8,
+    marginVertical: 5,
+  },
+  selectedDateText: {
+    marginRight: 10,
+    color: COLORS.text,
+  },
+  clearDateButton: {
+    backgroundColor: COLORS.error,
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  clearDateButtonText: {
+    color: COLORS.white,
+    fontWeight: "bold",
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
@@ -67,7 +135,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   userInfo: {
     flexDirection: "row",
@@ -131,6 +199,9 @@ const styles = StyleSheet.create({
   },
   footerLoader: {
     marginVertical: 20,
+  },
+  specialStyle: {
+    padding: 15,
   },
 });
 

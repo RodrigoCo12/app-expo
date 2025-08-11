@@ -28,7 +28,7 @@ export default function Create() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  // const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentUser, setCurrentUser] = useState(null); // Estado para el usuario actualizado
 
   const router = useRouter();
@@ -95,7 +95,7 @@ export default function Create() {
   };
 
   const handleSubmit = async () => {
-    if (!title || !description || !selectedDate) {
+    if (!title || !description) {
       Alert.alert("Error", "Por favor completa todos los campos obligatorios");
       return;
     }
@@ -106,7 +106,7 @@ export default function Create() {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
-      formData.append("incidentDate", selectedDate.toISOString());
+      // formData.append("incidentDate", selectedDate.toISOString());
       // No necesitamos enviar location ya que se obtendrá del usuario en el backend
 
       if (image) {
@@ -148,7 +148,7 @@ export default function Create() {
     setTitle("");
     setDescription("");
     // setSelectedPost(null);
-    setSelectedDate(new Date());
+    // setSelectedDate(new Date());
     setImage(null);
   };
 
@@ -182,14 +182,14 @@ export default function Create() {
             </View>
 
             {/* Fecha y Hora */}
-            <View style={styles.formGroup}>
+            {/* <View style={styles.formGroup}>
               <Text style={styles.label}>Fecha y Hora del Incidente*</Text>
               <DateTimeSelector
                 onDateTimeChange={setSelectedDate}
                 mode="datetime"
                 initialDate={selectedDate}
               />
-            </View>
+            </View> */}
 
             {/* Imagen */}
             <View style={styles.formGroup}>

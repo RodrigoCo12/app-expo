@@ -77,20 +77,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="create_report_status"
+        name="incidentsUser"
         options={{
-          title: "Reporte",
+          title: "Incidentes",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="checkbox-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="incidentsUser"
+        name="posicion_trabajadores"
         options={{
-          title: "Incidentes",
+          title: "Pocisiones",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkbox-outline" size={size} color={color} />
+            <Ionicons name="body-outline" size={size} color={color} />
           ),
         }}
       />
