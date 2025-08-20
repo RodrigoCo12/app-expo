@@ -49,7 +49,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="create"
         options={{
           title: "Asistencia",
@@ -57,7 +57,7 @@ export default function TabLayout() {
             <Ionicons name="checkmark-outline" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -68,9 +68,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="create_report_incident"
+        name="reportes"
         options={{
-          title: "Incidente",
+          title: "Reportes",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="warning-outline" size={size} color={color} />
           ),
@@ -102,12 +102,11 @@ function getHeaderTitle(route) {
   switch (route.name) {
     case "index":
       return "Registro de Asistencia";
-    case "create":
-      return "Registrar Asistencia";
+
     case "profile":
       return "Mi Perfil";
-    case "create_report_incident":
-      return "Reportar Incidente";
+    case "reportes":
+      return "Reportes de Guardias";
     case "incidentsUser":
       return "Incidentes Reportados";
     default:

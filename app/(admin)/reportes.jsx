@@ -17,8 +17,8 @@
 // import COLORS from "../../constants/colors";
 // import Loader from "../../components/Loader";
 // import { useRouter } from "expo-router";
-// import PosicionSelector from "../../components/PosicionSelector";
 // import DateSelector from "../../components/DateSelector";
+// import LocationSelector from "../../components/LocationSelector";
 
 // export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -31,7 +31,7 @@
 //   const [page, setPage] = useState(1);
 //   const [hasMore, setHasMore] = useState(true);
 //   const [expandedId, setExpandedId] = useState(null);
-//   const [selectedLocation, setSelectedLocation] = useState(null);
+//   const [selectedLocation, setSelectedLocation] = useState("Todos");
 //   const [fechaFiltro, setFechaFiltro] = useState(null);
 //   const [filtroActivo, setFiltroActivo] = useState(false);
 
@@ -42,7 +42,7 @@
 
 //       let url = `${API_URL}/entrada?page=${pageNum}&limit=10`;
 
-//       // Filtrar por ubicación si está seleccionada
+//       // Filtrar por ubicación si está seleccionada y no es "Todos"
 //       if (selectedLocation && selectedLocation !== "Todos") {
 //         url += `&locacion=${selectedLocation}`;
 //       }
@@ -96,10 +96,8 @@
 //   }, []);
 
 //   useEffect(() => {
-//     if (selectedLocation !== null || fechaFiltro !== null) {
-//       fetchEntradas(1, true);
-//       setFiltroActivo(selectedLocation !== "Todos" || fechaFiltro !== null);
-//     }
+//     fetchEntradas(1, true);
+//     setFiltroActivo(selectedLocation !== "Todos" || fechaFiltro !== null);
 //   }, [selectedLocation, fechaFiltro]);
 
 //   const handleLoadMore = async () => {
@@ -122,6 +120,14 @@
 
 //   const handleClearDate = () => {
 //     setFechaFiltro(null);
+//   };
+
+//   const handleLocationChange = (location) => {
+//     setSelectedLocation(location);
+//   };
+
+//   const handleClearLocation = () => {
+//     setSelectedLocation("Todos");
 //   };
 
 //   const limpiarTodosFiltros = () => {
@@ -280,16 +286,14 @@
 //               label="Filtrar por fecha:"
 //             />
 
-//             {/* Filtro de Ubicación */}
-//             {/* <View style={styles.filtrosContainer}>
-//               <Text style={styles.filtroLabel}>Filtrar por ubicación:</Text>
-//               <PosicionSelector
-//                 selectedPost={selectedLocation}
-//                 setSelectedPost={setSelectedLocation}
-//                 filter={true}
-//                 includeAll={true}
-//               />
-//             </View> */}
+//             {/* Componente LocationSelector */}
+//             <LocationSelector
+//               selectedLocation={selectedLocation}
+//               onLocationChange={handleLocationChange}
+//               onClearLocation={handleClearLocation}
+//               placeholder="Seleccionar ubicación"
+//               label="Filtrar por ubicación:"
+//             />
 
 //             {/* Limpiar Filtros */}
 //             {filtroActivo && (
@@ -350,7 +354,6 @@ import { useEffect, useState } from "react";
 import styles from "../../assets/styles/incidents.styles";
 import { API_URL } from "../../constants/api";
 import { Ionicons } from "@expo/vector-icons";
-import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
 import { useRouter } from "expo-router";
@@ -359,10 +362,10 @@ import LocationSelector from "../../components/LocationSelector";
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export default function Entradas() {
+export default function Reportes() {
   const { token, user } = useAuthStore();
   const router = useRouter();
-  const [entradas, setEntradas] = useState([]);
+  const [reportes, setReportes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -372,16 +375,16 @@ export default function Entradas() {
   const [fechaFiltro, setFechaFiltro] = useState(null);
   const [filtroActivo, setFiltroActivo] = useState(false);
 
-  const fetchEntradas = async (pageNum = 1, refresh = false) => {
+  const fetchReportes = async (pageNum = 1, refresh = false) => {
     try {
       if (refresh) setRefreshing(true);
       else if (pageNum === 1) setLoading(true);
 
-      let url = `${API_URL}/entrada?page=${pageNum}&limit=10`;
+      let url = `${API_URL}/reporte?page=${pageNum}&limit=10`;
 
       // Filtrar por ubicación si está seleccionada y no es "Todos"
       if (selectedLocation && selectedLocation !== "Todos") {
-        url += `&locacion=${selectedLocation}`;
+        url += `&location=${selectedLocation}`;
       }
 
       // Filtrar por fecha si está seleccionada
@@ -400,24 +403,24 @@ export default function Entradas() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch entradas");
+        throw new Error("Failed to fetch reportes");
       }
 
       const data = await response.json();
 
-      const uniqueEntradas =
+      const uniqueReportes =
         refresh || pageNum === 1
-          ? data.entradas
-          : Array.from(new Set([...entradas, ...data.entradas].map((entrada) => entrada._id))).map(
-              (id) => [...entradas, ...data.entradas].find((entrada) => entrada._id === id)
+          ? data.reportes
+          : Array.from(new Set([...reportes, ...data.reportes].map((reporte) => reporte._id))).map(
+              (id) => [...reportes, ...data.reportes].find((reporte) => reporte._id === id)
             );
 
-      setEntradas(uniqueEntradas);
+      setReportes(uniqueReportes);
       setHasMore(pageNum < data.totalPaginas);
       setPage(pageNum);
     } catch (error) {
-      console.log("Error fetching entradas:", error);
-      Alert.alert("Error", "No se pudieron cargar las entradas");
+      console.log("Error fetching reportes:", error);
+      Alert.alert("Error", "No se pudieron cargar los reportes");
     } finally {
       if (refresh) {
         await sleep(800);
@@ -429,22 +432,18 @@ export default function Entradas() {
   };
 
   useEffect(() => {
-    fetchEntradas();
+    fetchReportes();
   }, []);
 
   useEffect(() => {
-    fetchEntradas(1, true);
+    fetchReportes(1, true);
     setFiltroActivo(selectedLocation !== "Todos" || fechaFiltro !== null);
   }, [selectedLocation, fechaFiltro]);
 
   const handleLoadMore = async () => {
     if (hasMore && !loading && !refreshing) {
-      await fetchEntradas(page + 1);
+      await fetchReportes(page + 1);
     }
-  };
-
-  const handleCreateEntrada = () => {
-    router.push("/entrada");
   };
 
   const toggleExpand = (id) => {
@@ -473,42 +472,51 @@ export default function Entradas() {
     setFiltroActivo(false);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "activo":
+  const getInTimeColor = (inTime) => {
+    switch (inTime) {
+      case "en tiempo":
         return COLORS.success;
-      case "completado":
-        return COLORS.primary;
+      case "atrasado":
+        return COLORS.danger;
       default:
         return COLORS.textSecondary;
     }
   };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "activo":
-        return "ACTIVO";
-      case "completado":
-        return "COMPLETADO";
+  const getInTimeText = (inTime) => {
+    switch (inTime) {
+      case "en tiempo":
+        return "EN TIEMPO";
+      case "atrasado":
+        return "ATRASADO";
       default:
-        return status;
+        return inTime || "NO ESPECIFICADO";
     }
   };
 
-  const formatTime = (date) => {
-    if (!date) return "No registrada";
-    return new Date(date).toLocaleTimeString("es-ES", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatTime = (timeString) => {
+    if (!timeString) return "No registrada";
+    return timeString;
   };
 
-  const formatDate = (date) => {
-    if (!date) return "No registrada";
-    return new Date(date).toLocaleDateString("es-ES", {
+  const formatDate = (dateString) => {
+    if (!dateString) return "No registrada";
+    return new Date(dateString).toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
+    });
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "No registrada";
+    const date = new Date(dateString);
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -520,9 +528,9 @@ export default function Entradas() {
     >
       <View style={styles.bookHeader}>
         <View style={styles.userInfo}>
-          <Text style={styles.username}>{item.nombre}</Text>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-            <Text style={styles.statusText}>{getStatusText(item.status)}</Text>
+          <Text style={styles.username}>{item.guardia}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: getInTimeColor(item.in_time) }]}>
+            <Text style={styles.statusText}>{getInTimeText(item.in_time)}</Text>
           </View>
         </View>
         <Ionicons
@@ -534,7 +542,7 @@ export default function Entradas() {
 
       <View style={styles.infoRow}>
         <Ionicons name="location-outline" size={16} color={COLORS.textSecondary} />
-        <Text style={styles.infoText}>{item.locacion}</Text>
+        <Text style={styles.infoText}>{item.location}</Text>
       </View>
 
       {item.numero_guardia && (
@@ -546,45 +554,41 @@ export default function Entradas() {
 
       <View style={styles.infoRow}>
         <Ionicons name="time-outline" size={16} color={COLORS.textSecondary} />
-        <Text style={styles.infoText}>
-          Entrada: {formatDate(item.entrada)} {formatTime(item.entrada)}
-        </Text>
+        <Text style={styles.infoText}>Hora de reporte: {item.hora_de_reporte}</Text>
       </View>
 
-      {item.salida && (
-        <View style={styles.infoRow}>
-          <Ionicons name="exit-outline" size={16} color={COLORS.textSecondary} />
-          <Text style={styles.infoText}>
-            Salida: {formatDate(item.salida)} {formatTime(item.salida)}
-          </Text>
-        </View>
-      )}
+      <View style={styles.infoRow}>
+        <Ionicons name="calendar-outline" size={16} color={COLORS.textSecondary} />
+        <Text style={styles.infoText}>Fecha: {formatDate(item.createdAt)}</Text>
+      </View>
 
       {expandedId === item._id && (
         <View style={styles.expandedContent}>
+          <View style={styles.detailsContainer}>
+            <Text style={styles.detailTitle}>Descripción:</Text>
+            <Text style={styles.descripcionText}>{item.descripcion}</Text>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Reporte ID:</Text>
+              <Text style={styles.detailValue}>{item._id}</Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Creado el:</Text>
+              <Text style={styles.detailValue}>{formatDateTime(item.createdAt)}</Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Actualizado el:</Text>
+              <Text style={styles.detailValue}>{formatDateTime(item.updatedAt)}</Text>
+            </View>
+          </View>
+
           {item.image && (
             <View style={styles.imageContainer}>
               <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
             </View>
           )}
-
-          <View style={styles.detailsContainer}>
-            <Text style={styles.detailTitle}>Detalles completos:</Text>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Registro ID:</Text>
-              <Text style={styles.detailValue}>{item._id}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Duración:</Text>
-              <Text style={styles.detailValue}>
-                {item.entrada && item.salida
-                  ? `${Math.round((new Date(item.salida) - new Date(item.entrada)) / (1000 * 60 * 60))} horas`
-                  : item.status === "activo"
-                    ? "En curso..."
-                    : "No disponible"}
-              </Text>
-            </View>
-          </View>
         </View>
       )}
     </TouchableOpacity>
@@ -595,7 +599,7 @@ export default function Entradas() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={entradas}
+        data={reportes}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
@@ -603,7 +607,7 @@ export default function Entradas() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => fetchEntradas(1, true)}
+            onRefresh={() => fetchReportes(1, true)}
             colors={[COLORS.primary]}
             tintColor={COLORS.primary}
           />
@@ -612,7 +616,7 @@ export default function Entradas() {
         onEndReachedThreshold={0.1}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.screenTitle}>Registro de Entradas</Text>
+            <Text style={styles.screenTitle}>Registro de Reportes</Text>
 
             {/* Componente DateSelector */}
             <DateSelector
@@ -642,32 +646,27 @@ export default function Entradas() {
           </View>
         }
         ListFooterComponent={
-          hasMore && entradas.length > 0 ? (
+          hasMore && reportes.length > 0 ? (
             <ActivityIndicator style={styles.footerLoader} size="small" color={COLORS.primary} />
           ) : null
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="time-outline" size={60} color={COLORS.textSecondary} />
+            <Ionicons name="document-text-outline" size={60} color={COLORS.textSecondary} />
             <Text style={styles.emptyText}>
               {filtroActivo
-                ? "No hay entradas con los filtros aplicados"
-                : "No hay entradas registradas"}
+                ? "No hay reportes con los filtros aplicados"
+                : "No hay reportes registrados"}
             </Text>
             <Text style={styles.emptySubtext}>
               {filtroActivo
                 ? "Intenta con otros filtros o limpia los actuales"
-                : "Comienza registrando una nueva entrada"}
+                : "Los reportes aparecerán aquí una vez que sean creados"}
             </Text>
-            {filtroActivo ? (
+            {filtroActivo && (
               <TouchableOpacity style={styles.button} onPress={limpiarTodosFiltros}>
                 <Ionicons name="close-circle-outline" size={20} color={COLORS.white} />
                 <Text style={styles.buttonText}>Limpiar Filtros</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity style={styles.button} onPress={handleCreateEntrada}>
-                <Ionicons name="log-in-outline" size={20} color={COLORS.white} />
-                <Text style={styles.buttonText}>Registrar Entrada</Text>
               </TouchableOpacity>
             )}
           </View>

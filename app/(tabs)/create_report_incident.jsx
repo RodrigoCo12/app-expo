@@ -21,8 +21,8 @@ import { useAuthStore } from "../../store/authStore";
 import * as ImagePicker from "expo-image-picker";
 import { API_URL } from "../../constants/api";
 import { Picker } from "@react-native-picker/picker";
-import DateTimeSelector from "../../components/DateTimeSelector";
-import PosicionSelector from "../../components/PosicionSelector";
+// import DateTimeSelector from "../../components/DateTimeSelector";
+// import PosicionSelector from "../../components/PosicionSelector";
 export default function Create() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -182,14 +182,14 @@ export default function Create() {
             </View>
 
             {/* Fecha y Hora */}
-            <View style={styles.formGroup}>
+            {/* <View style={styles.formGroup}>
               <Text style={styles.label}>Fecha y Hora del Incidente*</Text>
               <DateTimeSelector
                 onDateTimeChange={setSelectedDate}
                 mode="datetime"
                 initialDate={selectedDate}
               />
-            </View>
+            </View> */}
 
             {/* Imagen */}
             <View style={styles.formGroup}>

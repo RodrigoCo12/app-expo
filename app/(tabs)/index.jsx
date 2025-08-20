@@ -6,11 +6,11 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   Alert,
   Image,
   ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import styles from "../../assets/styles/create.styles";
@@ -19,42 +19,92 @@ import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
 import * as ImagePicker from "expo-image-picker";
 import { API_URL } from "../../constants/api";
-import PosicionSelector from "../../components/PosicionSelector";
 
-export default function Create() {
-  const [location, setLocation] = useState("");
+export default function Entrada() {
+  const [locacion, setLocacion] = useState("");
+  const [numeroGuardia, setNumeroGuardia] = useState(null);
+  const [nombre, setNombre] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [userStatus, setUserStatus] = useState("");
-  const [statusLoading, setStatusLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [entradaRegistrada, setEntradaRegistrada] = useState(null);
+  const [registrandoSalida, setRegistrandoSalida] = useState(false);
+  const [cargandoGuardias, setCargandoGuardias] = useState(true);
+  const [guardiasActivos, setGuardiasActivos] = useState({});
 
   const router = useRouter();
   const { token, user } = useAuthStore();
 
-  // Función para obtener el estado actual del usuario
-  const fetchUserStatus = async () => {
-    try {
-      const response = await fetch(`${API_URL}/auth/user-status/${user.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
+  // Cargar datos del usuario y verificar guardias activos
+  useEffect(() => {
+    const cargarDatos = async () => {
+      if (user) {
+        setUserData(user);
+        setLocacion(user.username);
 
-      if (response.ok) {
-        setUserStatus(data.status);
+        // Verificar estado de todos los guardias
+        await verificarGuardiasActivos();
+
+        // Si el usuario tiene exactamente 1 guardia, seleccionarlo automáticamente
+        if (user.numero_guardias === 1) {
+          setNumeroGuardia(1);
+        }
+      } else {
+        // Si user es null, resetear el estado
+        setUserData(null);
+        setLocacion("");
+        setNumeroGuardia(null);
+        setCargandoGuardias(false);
       }
+    };
+
+    cargarDatos();
+  }, [user, token]);
+
+  // Verificar estado de todos los guardias del usuario
+  const verificarGuardiasActivos = async () => {
+    try {
+      setCargandoGuardias(true);
+      const activos = {};
+
+      // Verificar cada guardia del usuario
+      for (let i = 1; i <= user.numero_guardias; i++) {
+        const response = await fetch(`${API_URL}/entrada/activo/${user.username}/${i}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const entradaActiva = await response.json();
+          activos[i] = entradaActiva;
+
+          // Si este guardia está activo y es el único, establecerlo como entrada registrada
+          if (entradaActiva && user.numero_guardias === 1) {
+            setEntradaRegistrada(entradaActiva);
+          }
+        }
+      }
+
+      setGuardiasActivos(activos);
     } catch (error) {
-      console.error("Error fetching user status:", error);
+      console.error("Error al verificar guardias activos:", error);
+    } finally {
+      setCargandoGuardias(false);
     }
   };
 
-  // Cargar el estado al montar el componente
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserStatus();
+  // Cuando se selecciona un número de guardia
+  const handleSeleccionGuardia = async (numero) => {
+    setNumeroGuardia(numero);
+
+    // Verificar si este guardia específico está activo
+    if (guardiasActivos[numero]) {
+      setEntradaRegistrada(guardiasActivos[numero]);
+    } else {
+      setEntradaRegistrada(null);
     }
-  }, [user?.id]);
+  };
 
   const pickImage = async () => {
     try {
@@ -82,49 +132,30 @@ export default function Create() {
     }
   };
 
-  const updateUserProfile = async () => {
-    try {
-      const response = await fetch(`${API_URL}/auth/update-profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          location: location,
-          status: "activo",
-        }),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message || "Error al actualizar el perfil del usuario");
-      }
-
-      return responseData;
-    } catch (error) {
-      console.error("Error al actualizar perfil:", error);
-      throw error;
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!location) {
-      Alert.alert("Error", "Por favor completa la ubicación");
+    if (!locacion) {
+      Alert.alert("Error", "La ubicación es requerida");
+      return;
+    }
+
+    if (!nombre) {
+      Alert.alert("Error", "El nombre es requerido");
+      return;
+    }
+
+    if (!numeroGuardia) {
+      Alert.alert("Error", "Debes seleccionar un número de guardia");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Primero actualizar el perfil del usuario
-      await updateUserProfile();
-
-      // Luego crear el reporte
+      // Crear la entrada
       const formData = new FormData();
-      formData.append("location", location);
+      formData.append("locacion", locacion);
+      formData.append("numero_guardia", numeroGuardia.toString());
+      formData.append("nombre", nombre);
 
       if (image) {
         const fileType = image.split(".").pop();
@@ -132,12 +163,12 @@ export default function Create() {
 
         formData.append("image", {
           uri: image,
-          name: `reporte_image.${fileType}`,
+          name: `entrada_image.${fileType}`,
           type: mimeType,
         });
       }
 
-      const response = await fetch(`${API_URL}/reporte`, {
+      const response = await fetch(`${API_URL}/entrada`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -145,63 +176,225 @@ export default function Create() {
         },
         body: formData,
       });
+
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Error al crear el reporte");
+        throw new Error(responseData.message || "Error al crear la entrada");
       }
 
-      Alert.alert("Éxito", "¡El reporte ha sido creado y tu perfil ha sido actualizado!");
-      resetForm();
-      setUserStatus("activo");
-      // router.push("/reportes");
+      Alert.alert("Éxito", "¡La entrada ha sido registrada correctamente!");
+      setEntradaRegistrada(responseData);
+      // Actualizar el estado de guardias activos
+      setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: responseData }));
     } catch (error) {
-      console.error("Error al crear reporte:", error);
-      Alert.alert(
-        "Error",
-        error.message || "Algo salió mal al crear el reporte o actualizar tu perfil"
-      );
+      console.error("Error al crear entrada:", error);
+      Alert.alert("Error", error.message || "Algo salió mal al crear la entrada");
     } finally {
       setLoading(false);
     }
   };
 
-  const setStatusToInactive = async () => {
+  const handleRegistrarSalida = async () => {
+    if (!entradaRegistrada || !entradaRegistrada._id) {
+      Alert.alert("Error", "No se puede registrar la salida");
+      return;
+    }
+
     try {
-      setStatusLoading(true);
-      const response = await fetch(`${API_URL}/auth/update-profile`, {
+      setRegistrandoSalida(true);
+
+      const response = await fetch(`${API_URL}/entrada/${entradaRegistrada._id}/salida`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          userId: user.id,
-          status: "inactivo",
-        }),
       });
 
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Error al actualizar el estado");
+        throw new Error(responseData.message || "Error al registrar la salida");
       }
 
-      setUserStatus("inactivo");
-      Alert.alert("Éxito", "Tu estado ha sido cambiado a inactivo");
+      Alert.alert("Éxito", "¡La salida ha sido registrada correctamente!");
+      setEntradaRegistrada(null);
+      // Solo resetear número de guardia si el usuario tiene más de un guardia
+      if (user && user.numero_guardias > 1) {
+        setNumeroGuardia(null);
+      }
+      // Actualizar el estado de guardias activos
+      setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: null }));
+      resetForm();
     } catch (error) {
-      console.error("Error al cambiar estado:", error);
-      Alert.alert("Error", error.message || "Algo salió mal al cambiar tu estado");
+      console.error("Error al registrar salida:", error);
+      Alert.alert("Error", error.message || "Algo salió mal al registrar la salida");
     } finally {
-      setStatusLoading(false);
+      setRegistrandoSalida(false);
     }
   };
 
   const resetForm = () => {
-    setLocation("");
+    setNombre("");
     setImage(null);
   };
 
+  // Generar opciones para el selector de número de guardia
+  const generarOpcionesGuardias = () => {
+    if (!userData || !userData.numero_guardias || userData.numero_guardias < 1) return [];
+
+    const opciones = [];
+    for (let i = 1; i <= userData.numero_guardias; i++) {
+      opciones.push(i);
+    }
+    return opciones;
+  };
+
+  const opcionesGuardias = generarOpcionesGuardias();
+
+  // Formatear fecha para mostrar
+  const formatFecha = (fecha) => {
+    if (!fecha) return "No registrada";
+
+    const date = new Date(fecha);
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Si no hay usuario (logout), mostrar mensaje o redirigir
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Sesión no iniciada</Text>
+          <Text style={styles.subtitle}>Por favor inicia sesión para acceder a esta función</Text>
+          <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
+            <Text style={styles.buttonText}>Ir a Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  // Si está cargando la verificación de guardias
+  if (cargandoGuardias) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Verificando estado de guardias...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // Si el usuario tiene más de un guardia y no se ha seleccionado uno, mostrar selector
+  if (user.numero_guardias > 1 && !numeroGuardia) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Seleccionar Guardia</Text>
+          <Text style={styles.subtitle}>Elige el número de guardia a registrar</Text>
+
+          <View style={styles.selectorContainerGrande}>
+            {opcionesGuardias.map((numero) => (
+              <TouchableOpacity
+                key={numero}
+                style={[
+                  styles.selectorOptionGrande,
+                  guardiasActivos[numero] && styles.selectorOptionActivo,
+                ]}
+                onPress={() => handleSeleccionGuardia(numero)}
+              >
+                <Ionicons
+                  name={guardiasActivos[numero] ? "checkmark-circle" : "person-outline"}
+                  size={40}
+                  color={guardiasActivos[numero] ? COLORS.success : COLORS.text}
+                />
+                <Text style={styles.selectorOptionTextGrande}>Guardia {numero}</Text>
+                <Text style={styles.selectorOptionEstado}>
+                  {guardiasActivos[numero] ? "ACTIVO" : "DISPONIBLE"}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Si el guardia seleccionado está activo, mostrar pantalla de salida
+  if (entradaRegistrada) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.title}>Guardia {numeroGuardia} - ACTIVO</Text>
+
+          <View style={styles.estadoContainer}>
+            <Ionicons name="checkmark-circle" size={60} color={COLORS.success} />
+            <Text style={styles.estadoTexto}>ESTADO: ACTIVO</Text>
+
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoLabel}>Nombre:</Text>
+              <Text style={styles.infoValue}>{entradaRegistrada.nombre}</Text>
+
+              <Text style={styles.infoLabel}>Ubicación:</Text>
+              <Text style={styles.infoValue}>{entradaRegistrada.locacion}</Text>
+
+              <Text style={styles.infoLabel}>Hora de entrada:</Text>
+              <Text style={styles.infoValue}>{formatFecha(entradaRegistrada.entrada)}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.button, styles.salidaButton]}
+            onPress={handleRegistrarSalida}
+            disabled={registrandoSalida}
+          >
+            {registrandoSalida ? (
+              <ActivityIndicator color={COLORS.white} />
+            ) : (
+              <>
+                <Ionicons
+                  name="log-out-outline"
+                  size={24}
+                  color={COLORS.white}
+                  style={styles.buttonIcon}
+                />
+                <Text style={styles.buttonText}>Registrar Salida</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {user.numero_guardias > 1 && (
+            <TouchableOpacity
+              style={[styles.button, styles.secondaryButton]}
+              onPress={() => {
+                setNumeroGuardia(null);
+                setEntradaRegistrada(null);
+              }}
+            >
+              <Ionicons
+                name="arrow-back-outline"
+                size={20}
+                color={COLORS.text}
+                style={styles.buttonIcon}
+              />
+              <Text style={[styles.buttonText, styles.secondaryButtonText]}>Cambiar Guardia</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    );
+  }
+
+  // Mostrar formulario de entrada si el guardia no está activo
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -209,24 +402,39 @@ export default function Create() {
     >
       <ScrollView contentContainerStyle={styles.container} style={styles.scrollViewStyle}>
         <View style={styles.card}>
-          {/* HEADER */}
+          <Text style={styles.title}>Registrar Entrada - Guardia {numeroGuardia}</Text>
 
-          {/* Ubicación */}
           <View style={styles.form}>
+            {/* Ubicación (username del usuario) */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Puesto de Vigilancia*</Text>
-              <PosicionSelector selectedPost={location} setSelectedPost={setLocation} />
+              <Text style={styles.label}>Ubicación</Text>
+              <View style={styles.disabledInput}>
+                <Text style={styles.disabledInputText}>{locacion || user?.username}</Text>
+              </View>
+              <Text style={styles.helperText}>Esta ubicación está asociada a tu usuario</Text>
+            </View>
+
+            {/* Campo para ingresar el nombre */}
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Nombre*</Text>
+              <TextInput
+                style={styles.input}
+                value={nombre}
+                onChangeText={setNombre}
+                placeholder="Ingresa el nombre completo"
+                placeholderTextColor={COLORS.textSecondary}
+              />
             </View>
 
             {/* Imagen */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Imagen del Reporte (Opcional)</Text>
+              <Text style={styles.label}>Imagen (Opcional)</Text>
               <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
                 {image ? (
                   <Image source={{ uri: image }} style={styles.previewImage} />
                 ) : (
                   <View style={styles.placeholderContainer}>
-                    <Ionicons name="image-outline" size={40} color={COLORS.textSecondary} />
+                    <Ionicons name="camera-outline" size={40} color={COLORS.textSecondary} />
                     <Text style={styles.placeholderText}>Toca para seleccionar imagen</Text>
                   </View>
                 )}
@@ -239,45 +447,30 @@ export default function Create() {
               ) : (
                 <>
                   <Ionicons
-                    name="alert-circle-outline"
+                    name="log-in-outline"
                     size={20}
                     color={COLORS.white}
                     style={styles.buttonIcon}
                   />
-                  <Text style={styles.buttonText}>Crear Reporte</Text>
+                  <Text style={styles.buttonText}>Registrar Entrada</Text>
                 </>
               )}
             </TouchableOpacity>
 
-            {/* Sección de estado del usuario */}
-            <View style={styles.statusContainer}>
-              <Text style={styles.statusText}>
-                Estado actual:{" "}
-                <Text style={{ fontWeight: "bold" }}>{userStatus || "Cargando..."}</Text>
-              </Text>
-
-              {userStatus === "activo" && (
-                <TouchableOpacity
-                  style={[styles.button, styles.inactiveButton]}
-                  onPress={setStatusToInactive}
-                  disabled={statusLoading}
-                >
-                  {statusLoading ? (
-                    <ActivityIndicator color={COLORS.white} />
-                  ) : (
-                    <>
-                      <Ionicons
-                        name="power-outline"
-                        size={20}
-                        color={COLORS.white}
-                        style={styles.buttonIcon}
-                      />
-                      <Text style={styles.buttonText}>Cambiar a Inactivo</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              )}
-            </View>
+            {user.numero_guardias > 1 && (
+              <TouchableOpacity
+                style={[styles.button, styles.secondaryButton]}
+                onPress={() => setNumeroGuardia(null)}
+              >
+                <Ionicons
+                  name="arrow-back-outline"
+                  size={20}
+                  color={COLORS.text}
+                  style={styles.buttonIcon}
+                />
+                <Text style={[styles.buttonText, styles.secondaryButtonText]}>Cambiar Guardia</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </ScrollView>

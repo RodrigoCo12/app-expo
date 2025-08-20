@@ -14,6 +14,7 @@ const COLORS = {
   border: "#ddbfcdff",
   white: "#ffffffff",
   black: "#000000",
+  danger: "#dd4848ff",
 };
 // const COLORS = {
 //   primary: "#4CAF50",

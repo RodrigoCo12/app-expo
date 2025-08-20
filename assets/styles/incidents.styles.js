@@ -3,6 +3,121 @@ import { StyleSheet } from "react-native";
 import COLORS from "../../constants/colors";
 
 const styles = StyleSheet.create({
+  // Estilos adicionales para los filtros
+  filtrosContainer: {
+    marginBottom: 15,
+    width: "100%",
+  },
+  filtroLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.text,
+    marginBottom: 8,
+  },
+  datePickerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+  },
+  datePickerText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: COLORS.text,
+    flex: 1,
+  },
+  clearButton: {
+    padding: 4,
+  },
+  limpiarFiltrosButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.grayLight,
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 10,
+  },
+  limpiarFiltrosText: {
+    marginLeft: 6,
+    color: COLORS.danger,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: COLORS.text,
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 10,
+  },
+  statusText: {
+    color: COLORS.white,
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  infoText: {
+    marginLeft: 8,
+    color: COLORS.text,
+    fontSize: 14,
+  },
+  expandedContent: {
+    marginTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.grayLight,
+    paddingTop: 15,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 200,
+    marginBottom: 15,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  detailsContainer: {
+    backgroundColor: COLORS.grayLight,
+    padding: 15,
+    borderRadius: 10,
+  },
+  detailTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: COLORS.text,
+    marginBottom: 10,
+  },
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+  },
+  detailValue: {
+    fontSize: 14,
+    color: COLORS.text,
+  },
   dateFilterContainer: {
     marginTop: 10,
   },

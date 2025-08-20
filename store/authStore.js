@@ -9,7 +9,7 @@ export const useAuthStore = create((set) => ({
   isLoading: false,
   isCheckingAuth: true,
 
-  register: async (username, password) => {
+  register: async (username, password, numero_guardias) => {
     set({ isLoading: true });
     try {
       // console.log(`${API_URL} ff`);
@@ -23,6 +23,7 @@ export const useAuthStore = create((set) => ({
         body: JSON.stringify({
           username,
           password,
+          numero_guardias,
         }),
       });
       const data = await response.json();

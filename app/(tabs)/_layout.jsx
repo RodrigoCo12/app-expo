@@ -49,6 +49,16 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="reportarse"
+        options={{
+          title: "Reportarse",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="checkmark-outline" size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
@@ -74,6 +84,8 @@ function getHeaderTitle(route) {
   switch (route.name) {
     case "index":
       return "Registrar Asistencia";
+    case "reportarse":
+      return "Reporte de Horario";
     case "profile":
       return "Mi Perfil";
     case "create_report_incident":
