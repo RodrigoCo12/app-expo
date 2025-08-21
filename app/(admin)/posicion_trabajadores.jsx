@@ -1,3 +1,247 @@
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   FlatList,
+//   ActivityIndicator,
+//   RefreshControl,
+//   Image,
+//   Alert,
+//   StyleSheet,
+// } from "react-native";
+// import { useAuthStore } from "../../store/authStore";
+// import { useEffect, useState } from "react";
+// import styles from "../../assets/styles/incidents.styles";
+// import { API_URL } from "../../constants/api";
+// import { Ionicons } from "@expo/vector-icons";
+// import COLORS from "../../constants/colors";
+// import Loader from "../../components/Loader";
+// import PosicionSelector from "../../components/PosicionSelector";
+
+// export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// // Usamos los mismos valores que en PosicionSelector
+// const locations = [
+//   { id: "Entrada principal", name: "Entrada Principal" },
+//   { id: "Recepción", name: "Recepción" },
+//   { id: "Área de Carga", name: "Área de Carga" },
+//   { id: "Estacionamiento", name: "Estacionamiento" },
+// ];
+
+// export default function PosicionTrabajadores() {
+//   const { token } = useAuthStore();
+//   const [users, setUsers] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshing, setRefreshing] = useState(false);
+//   const [selectedLocation, setSelectedLocation] = useState(null);
+
+//   const fetchUsers = async () => {
+//     try {
+//       setLoading(true);
+
+//       const response = await fetch(`${API_URL}/auth/users`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+
+//       if (!response.ok) {
+//         throw new Error("Failed to fetch users");
+//       }
+
+//       const data = await response.json();
+//       setUsers(data);
+//     } catch (error) {
+//       console.log("Error fetching users:", error);
+//       Alert.alert("Error", "No se pudieron cargar los usuarios");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const onRefresh = async () => {
+//     setRefreshing(true);
+//     await fetchUsers();
+//     setRefreshing(false);
+//   };
+
+//   useEffect(() => {
+//     fetchUsers();
+//   }, []);
+
+//   const getUsersByLocation = (locationId) => {
+//     let filteredUsers = users.filter((user) => user.status === "activo"); // Solo usuarios activos
+
+//     if (locationId === "Todos" || !locationId) {
+//       return filteredUsers.filter((user) => user.location && user.location !== "Por seleccionar");
+//     }
+//     return filteredUsers.filter((user) => user.location === locationId);
+//   };
+
+//   const renderLocationCard = ({ item }) => {
+//     // Si hay un filtro seleccionado, solo mostramos esa ubicación
+//     if (selectedLocation && selectedLocation !== "Todos" && selectedLocation !== item.id) {
+//       return null;
+//     }
+
+//     const locationUsers = getUsersByLocation(item.id);
+
+//     return (
+//       <View style={positionStyles.locationCard}>
+//         <Text style={positionStyles.locationTitle}>{item.name}</Text>
+
+//         {locationUsers.length > 0 ? (
+//           <FlatList
+//             data={locationUsers}
+//             renderItem={renderUserItem}
+//             keyExtractor={(user) => user._id}
+//             scrollEnabled={false}
+//           />
+//         ) : (
+//           <Text style={positionStyles.noUsersText}>No hay trabajadores asignados</Text>
+//         )}
+//       </View>
+//     );
+//   };
+
+//   const renderUserItem = ({ item }) => (
+//     <View style={positionStyles.userCard}>
+//       <View style={positionStyles.userInfo}>
+//         {/* {item.profileImage && (
+//           <Image source={{ uri: item.profileImage }} style={positionStyles.userImage} />
+//         )} */}
+//         <View>
+//           <Text style={positionStyles.username}>{item.username}</Text>
+//           <Text style={positionStyles.adminText}>
+//             {item.admin === "valido" ? "Administrador" : "Trabajador"}
+//           </Text>
+//         </View>
+//       </View>
+//       <View style={positionStyles.userStatus}>
+//         <View
+//           style={[
+//             positionStyles.statusIndicator,
+//             { backgroundColor: COLORS.success }, // Siempre verde porque ya están filtrados
+//           ]}
+//         />
+//         <Text style={positionStyles.statusText}>Activo</Text>
+//       </View>
+//     </View>
+//   );
+
+//   const filteredLocations =
+//     selectedLocation && selectedLocation !== "Todos"
+//       ? locations.filter((loc) => loc.id === selectedLocation)
+//       : locations;
+
+//   if (loading) return <Loader />;
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.specialStyle}>
+//         <PosicionSelector
+//           selectedPost={selectedLocation}
+//           setSelectedPost={setSelectedLocation}
+//           filter={true}
+//         />
+//       </View>
+
+//       <FlatList
+//         data={filteredLocations}
+//         renderItem={renderLocationCard}
+//         keyExtractor={(item) => item.id}
+//         contentContainerStyle={positionStyles.listContainer}
+//         refreshControl={
+//           <RefreshControl
+//             refreshing={refreshing}
+//             onRefresh={onRefresh}
+//             colors={[COLORS.primary]}
+//             tintColor={COLORS.primary}
+//           />
+//         }
+//         ListEmptyComponent={
+//           <View style={styles.emptyContainer}>
+//             <Text style={styles.emptyText}>No se encontraron posiciones</Text>
+//           </View>
+//         }
+//       />
+//     </View>
+//   );
+// }
+
+// const positionStyles = StyleSheet.create({
+//   listContainer: {
+//     padding: 16,
+//   },
+//   locationCard: {
+//     backgroundColor: COLORS.white,
+//     borderRadius: 12,
+//     padding: 16,
+//     marginBottom: 16,
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 3,
+//   },
+//   locationTitle: {
+//     fontSize: 18,
+//     fontWeight: "bold",
+//     marginBottom: 12,
+//     color: COLORS.text,
+//   },
+//   userCard: {
+//     flexDirection: "row",
+//     justifyContent: "space-between",
+//     alignItems: "center",
+//     paddingVertical: 10,
+//     borderBottomWidth: 1,
+//     borderBottomColor: COLORS.lightGray,
+//   },
+//   userInfo: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     flex: 1,
+//   },
+//   userImage: {
+//     width: 40,
+//     height: 40,
+//     borderRadius: 20,
+//     marginRight: 10,
+//   },
+//   username: {
+//     fontSize: 16,
+//     color: COLORS.text,
+//     fontWeight: "500",
+//   },
+//   adminText: {
+//     fontSize: 12,
+//     color: COLORS.textSecondary,
+//     marginTop: 2,
+//   },
+//   userStatus: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     marginLeft: 10,
+//   },
+//   statusIndicator: {
+//     width: 10,
+//     height: 10,
+//     borderRadius: 5,
+//     marginRight: 5,
+//   },
+//   statusText: {
+//     fontSize: 14,
+//     color: COLORS.textSecondary,
+//   },
+//   noUsersText: {
+//     color: COLORS.textSecondary,
+//     fontStyle: "italic",
+//     textAlign: "center",
+//     paddingVertical: 10,
+//   },
+// });
 import {
   View,
   Text,
@@ -5,9 +249,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  Image,
   Alert,
-  StyleSheet,
+  ScrollView,
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
@@ -16,229 +259,207 @@ import { API_URL } from "../../constants/api";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
-import PosicionSelector from "../../components/PosicionSelector";
+import { useRouter } from "expo-router";
+import LocationSelector from "../../components/LocationSelector";
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Usamos los mismos valores que en PosicionSelector
-const locations = [
-  { id: "Entrada principal", name: "Entrada Principal" },
-  { id: "Recepción", name: "Recepción" },
-  { id: "Área de Carga", name: "Área de Carga" },
-  { id: "Estacionamiento", name: "Estacionamiento" },
-];
-
-export default function PosicionTrabajadores() {
-  const { token } = useAuthStore();
-  const [users, setUsers] = useState([]);
+export default function GuardiasActivos() {
+  const { token, user } = useAuthStore();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState("Todos");
+  const [allActiveGuards, setAllActiveGuards] = useState([]);
+  const [filteredActiveGuards, setFilteredActiveGuards] = useState([]);
 
-  const fetchUsers = async () => {
+  // Función para obtener TODOS los guardias activos
+  const fetchAllActiveGuards = async () => {
     try {
       setLoading(true);
 
-      const response = await fetch(`${API_URL}/auth/users`, {
+      // Obtener TODAS las entradas activas
+      const response = await fetch(`${API_URL}/entrada?status=activo`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch users");
+        throw new Error("Failed to fetch active guards");
       }
 
       const data = await response.json();
-      setUsers(data);
+      setAllActiveGuards(data.entradas || []);
+      applyLocationFilter(data.entradas || [], selectedLocation);
     } catch (error) {
-      console.log("Error fetching users:", error);
-      Alert.alert("Error", "No se pudieron cargar los usuarios");
+      console.log("Error fetching active guards:", error);
+      Alert.alert("Error", "No se pudieron cargar los guardias activos");
     } finally {
       setLoading(false);
     }
   };
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await fetchUsers();
-    setRefreshing(false);
+  // Aplicar filtro de ubicación
+  const applyLocationFilter = (guards, location) => {
+    if (location === "Todos") {
+      setFilteredActiveGuards(guards);
+    } else {
+      const filtered = guards.filter((guard) => guard.locacion === location);
+      setFilteredActiveGuards(filtered);
+    }
+  };
+
+  // Agrupar guardias por ubicación
+  const groupGuardsByLocation = (guards) => {
+    const grouped = {};
+    guards.forEach((guard) => {
+      if (!grouped[guard.locacion]) {
+        grouped[guard.locacion] = [];
+      }
+      grouped[guard.locacion].push(guard);
+    });
+    return grouped;
   };
 
   useEffect(() => {
-    fetchUsers();
+    fetchAllActiveGuards();
   }, []);
 
-  const getUsersByLocation = (locationId) => {
-    let filteredUsers = users.filter((user) => user.status === "activo"); // Solo usuarios activos
+  useEffect(() => {
+    applyLocationFilter(allActiveGuards, selectedLocation);
+  }, [selectedLocation, allActiveGuards]);
 
-    if (locationId === "Todos" || !locationId) {
-      return filteredUsers.filter((user) => user.location && user.location !== "Por seleccionar");
-    }
-    return filteredUsers.filter((user) => user.location === locationId);
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchAllActiveGuards();
+    setRefreshing(false);
   };
 
-  const renderLocationCard = ({ item }) => {
-    // Si hay un filtro seleccionado, solo mostramos esa ubicación
-    if (selectedLocation && selectedLocation !== "Todos" && selectedLocation !== item.id) {
-      return null;
-    }
-
-    const locationUsers = getUsersByLocation(item.id);
-
-    return (
-      <View style={positionStyles.locationCard}>
-        <Text style={positionStyles.locationTitle}>{item.name}</Text>
-
-        {locationUsers.length > 0 ? (
-          <FlatList
-            data={locationUsers}
-            renderItem={renderUserItem}
-            keyExtractor={(user) => user._id}
-            scrollEnabled={false}
-          />
-        ) : (
-          <Text style={positionStyles.noUsersText}>No hay trabajadores asignados</Text>
-        )}
-      </View>
-    );
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
   };
 
-  const renderUserItem = ({ item }) => (
-    <View style={positionStyles.userCard}>
-      <View style={positionStyles.userInfo}>
-        {/* {item.profileImage && (
-          <Image source={{ uri: item.profileImage }} style={positionStyles.userImage} />
-        )} */}
-        <View>
-          <Text style={positionStyles.username}>{item.username}</Text>
-          <Text style={positionStyles.adminText}>
-            {item.admin === "valido" ? "Administrador" : "Trabajador"}
+  const handleClearLocation = () => {
+    setSelectedLocation("Todos");
+  };
+
+  const formatTime = (date) => {
+    if (!date) return "No registrada";
+    return new Date(date).toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Componente para mostrar la lista de guardias activos
+  const ActiveGuardsList = () => {
+    if (filteredActiveGuards.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="shield-outline" size={60} color={COLORS.textSecondary} />
+          <Text style={styles.emptyText}>
+            {selectedLocation !== "Todos"
+              ? `No hay guardias activos en ${selectedLocation}`
+              : "No hay guardias activos en este momento"}
+          </Text>
+          <Text style={styles.emptySubtext}>
+            {selectedLocation !== "Todos"
+              ? "Intenta con otra ubicación o limpia el filtro"
+              : "Los guardias aparecerán aquí cuando inicien su turno"}
           </Text>
         </View>
-      </View>
-      <View style={positionStyles.userStatus}>
-        <View
-          style={[
-            positionStyles.statusIndicator,
-            { backgroundColor: COLORS.success }, // Siempre verde porque ya están filtrados
-          ]}
-        />
-        <Text style={positionStyles.statusText}>Activo</Text>
-      </View>
-    </View>
-  );
+      );
+    }
 
-  const filteredLocations =
-    selectedLocation && selectedLocation !== "Todos"
-      ? locations.filter((loc) => loc.id === selectedLocation)
-      : locations;
+    const groupedGuards = groupGuardsByLocation(filteredActiveGuards);
+
+    return (
+      <ScrollView style={styles.activeGuardsScroll} showsVerticalScrollIndicator={false}>
+        {Object.entries(groupedGuards).map(([location, guards]) => (
+          <View key={location} style={styles.locationGroup}>
+            <View style={styles.locationHeader}>
+              <Ionicons name="location-outline" size={20} color={COLORS.primary} />
+              <Text style={styles.locationTitle}>{location}</Text>
+              <Text style={styles.guardCount}>
+                ({guards.length} guardia{guards.length !== 1 ? "s" : ""})
+              </Text>
+            </View>
+
+            {guards.map((guard, index) => (
+              <View
+                key={guard._id}
+                style={[
+                  styles.activeGuardCard,
+                  index === guards.length - 1 && styles.lastGuardCard,
+                ]}
+              >
+                <View style={styles.activeGuardInfoContainer}>
+                  <View style={styles.activeGuardInfoRow}>
+                    <Ionicons name="person-outline" size={18} color={COLORS.text} />
+                    <Text style={styles.activeGuardLabel}>Guardia:</Text>
+                    <Text style={styles.activeGuardValue}>{guard.nombre}</Text>
+                  </View>
+
+                  {guard.numero_guardia && (
+                    <View style={styles.activeGuardInfoRow}>
+                      <Ionicons name="shield-outline" size={18} color={COLORS.text} />
+                      <Text style={styles.activeGuardLabel}>Número:</Text>
+                      <Text style={styles.activeGuardValue}>#{guard.numero_guardia}</Text>
+                    </View>
+                  )}
+
+                  <View style={styles.activeGuardInfoRow}>
+                    <Ionicons name="time-outline" size={18} color={COLORS.text} />
+                    <Text style={styles.activeGuardLabel}>Entrada:</Text>
+                    <Text style={styles.activeGuardValue}>{formatTime(guard.entrada)}</Text>
+                  </View>
+
+                  <View style={styles.activeGuardStatus}>
+                    <View style={[styles.statusIndicator, { backgroundColor: COLORS.success }]} />
+                    <Text style={styles.activeGuardStatusText}>ACTIVO</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
+    );
+  };
 
   if (loading) return <Loader />;
 
   return (
     <View style={styles.container}>
-      <View style={styles.specialStyle}>
-        <PosicionSelector
-          selectedPost={selectedLocation}
-          setSelectedPost={setSelectedLocation}
-          filter={true}
+      <View style={styles.header}>
+        <Text style={styles.screenTitle}>Guardias Activos</Text>
+        <Text style={styles.screenSubtitle}>Monitoreo en tiempo real</Text>
+
+        {/* Componente LocationSelector */}
+        <LocationSelector
+          selectedLocation={selectedLocation}
+          onLocationChange={handleLocationChange}
+          onClearLocation={handleClearLocation}
+          placeholder="Seleccionar ubicación"
+          label="Filtrar por ubicación:"
         />
       </View>
 
       <FlatList
-        data={filteredLocations}
-        renderItem={renderLocationCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={positionStyles.listContainer}
+        data={[]}
+        renderItem={null}
+        keyExtractor={() => "dummy"}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
+            onRefresh={handleRefresh}
             colors={[COLORS.primary]}
             tintColor={COLORS.primary}
           />
         }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No se encontraron posiciones</Text>
-          </View>
-        }
+        ListEmptyComponent={<ActiveGuardsList />}
       />
     </View>
   );
 }
-
-const positionStyles = StyleSheet.create({
-  listContainer: {
-    padding: 16,
-  },
-  locationCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  locationTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: COLORS.text,
-  },
-  userCard: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.lightGray,
-  },
-  userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  username: {
-    fontSize: 16,
-    color: COLORS.text,
-    fontWeight: "500",
-  },
-  adminText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  userStatus: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 10,
-  },
-  statusIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 5,
-  },
-  statusText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  noUsersText: {
-    color: COLORS.textSecondary,
-    fontStyle: "italic",
-    textAlign: "center",
-    paddingVertical: 10,
-  },
-});

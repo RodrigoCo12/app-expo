@@ -1,155 +1,8 @@
-// import React, { useState, useEffect } from "react";
-// import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
-// import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../store/authStore";
 import { API_URL } from "../constants/api";
 import COLORS from "../constants/colors";
 import styles from "../assets/styles/components styles/locationSelector.styles";
 
-// const LocationSelector = ({
-//   selectedLocation,
-//   onLocationChange,
-//   onClearLocation,
-//   placeholder = "Seleccionar ubicación",
-//   label = "Filtrar por ubicación:",
-// }) => {
-//   const [locations, setLocations] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [showDropdown, setShowDropdown] = useState(false);
-//   const { token } = useAuthStore();
-
-//   const fetchLocations = async () => {
-//     try {
-//       setLoading(true);
-
-//       // Obtener todos los usuarios no admin
-//       const response = await fetch(`${API_URL}/auth/users`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       if (!response.ok) {
-//         throw new Error("Failed to fetch users");
-//       }
-
-//       const users = await response.json();
-
-//       // Filtrar usuarios no admin y extraer usernames
-//       const nonAdminUsers = users.filter((user) => user.admin !== "admin");
-//       const userLocations = nonAdminUsers.map((user) => user.username);
-
-//       // Eliminar duplicados y ordenar alfabéticamente
-//       const uniqueLocations = [...new Set(userLocations)].sort();
-
-//       setLocations(uniqueLocations);
-//     } catch (error) {
-//       console.log("Error fetching locations:", error);
-//       Alert.alert("Error", "No se pudieron cargar las ubicaciones");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchLocations();
-//   }, []);
-
-//   const handleLocationSelect = (location) => {
-//     onLocationChange(location);
-//     setShowDropdown(false);
-//   };
-
-//   const handleClear = () => {
-//     onClearLocation();
-//     setShowDropdown(false);
-//   };
-
-//   if (loading) {
-//     return (
-//       <View style={styles.filtrosContainer}>
-//         <Text style={styles.filtroLabel}>{label}</Text>
-//         <View style={styles.locationPickerButton}>
-//           <ActivityIndicator size="small" color={COLORS.primary} />
-//           <Text style={styles.locationPickerText}>Cargando ubicaciones...</Text>
-//         </View>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <View style={styles.filtrosContainer}>
-//       <Text style={styles.filtroLabel}>{label}</Text>
-
-//       <View style={styles.locationSelectorContainer}>
-//         <TouchableOpacity
-//           style={styles.locationPickerButton}
-//           onPress={() => setShowDropdown(!showDropdown)}
-//         >
-//           <Ionicons name="location-outline" size={20} color={COLORS.primary} />
-//           <Text style={[styles.locationPickerText, !selectedLocation && styles.placeholderText]}>
-//             {selectedLocation || placeholder}
-//           </Text>
-
-//           {selectedLocation && (
-//             <TouchableOpacity
-//               onPress={(e) => {
-//                 e.stopPropagation();
-//                 handleClear();
-//               }}
-//               style={styles.clearButton}
-//             >
-//               <Ionicons name="close-circle" size={18} color={COLORS.danger} />
-//             </TouchableOpacity>
-//           )}
-
-//           <Ionicons
-//             name={showDropdown ? "chevron-up" : "chevron-down"}
-//             size={20}
-//             color={COLORS.textSecondary}
-//           />
-//         </TouchableOpacity>
-
-//         {showDropdown && (
-//           <View style={styles.locationDropdown}>
-//             <TouchableOpacity
-//               style={styles.locationOption}
-//               onPress={() => handleLocationSelect("Todos")}
-//             >
-//               <Ionicons name="globe-outline" size={18} color={COLORS.primary} />
-//               <Text style={styles.locationOptionText}>Todas las ubicaciones</Text>
-//             </TouchableOpacity>
-
-//             {locations.map((location) => (
-//               <TouchableOpacity
-//                 key={location}
-//                 style={[
-//                   styles.locationOption,
-//                   selectedLocation === location && styles.locationOptionSelected,
-//                 ]}
-//                 onPress={() => handleLocationSelect(location)}
-//               >
-//                 <Ionicons
-//                   name="person-outline"
-//                   size={18}
-//                   color={selectedLocation === location ? COLORS.white : COLORS.text}
-//                 />
-//                 <Text
-//                   style={[
-//                     styles.locationOptionText,
-//                     selectedLocation === location && styles.locationOptionTextSelected,
-//                   ]}
-//                 >
-//                   {location}
-//                 </Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         )}
-//       </View>
-//     </View>
-//   );
-// };
-
-// export default LocationSelector;
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -161,11 +14,6 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-// import { useAuthStore } from "../../store/authStore";
-// import { API_URL } from "../../constants/api";
-// import COLORS from "../../constants/colors";
-// import styles from "../../assets/styles/incidents.styles";
-
 const LocationSelector = ({
   selectedLocation,
   onLocationChange,
@@ -195,7 +43,7 @@ const LocationSelector = ({
       const users = await response.json();
 
       // Filtrar usuarios no admin y extraer usernames
-      const nonAdminUsers = users.filter((user) => user.admin !== "admin");
+      const nonAdminUsers = users.filter((user) => user.admin !== "valido");
       const userLocations = nonAdminUsers.map((user) => user.username);
 
       // Eliminar duplicados y ordenar alfabéticamente
