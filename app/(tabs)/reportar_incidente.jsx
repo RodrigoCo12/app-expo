@@ -13,20 +13,19 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
-import styles from "../../assets/styles/reportarse.styles";
+import styles from "../../assets/styles/reportar_incidente.styles";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
 import { useGuardiasStore } from "../../store/guardiasStore";
+
 import * as ImagePicker from "expo-image-picker";
 import { API_URL } from "../../constants/api";
 
-export default function Reporte() {
+export default function ReporteIncidente() {
   const { guardiasActualizados, tipoActualizacion, guardiaAfectado, resetGuardiasActualizados } =
     useGuardiasStore();
-
-  const [locacion, setLocacion] = useState("");
-  const [numeroGuardia, setNumeroGuardia] = useState(null);
+  const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -34,63 +33,16 @@ export default function Reporte() {
   const [entradaRegistrada, setEntradaRegistrada] = useState(null);
   const [cargandoGuardias, setCargandoGuardias] = useState(true);
   const [guardiasActivos, setGuardiasActivos] = useState({});
-  const [reporteEnviado, setReporteEnviado] = useState(false);
-  const [verificandoReporte, setVerificandoReporte] = useState(false);
-  // const { guardiasActualizados, resetGuardiasActualizados } = useGuardiasStore();
+  const [numeroGuardia, setNumeroGuardia] = useState(null);
 
   const router = useRouter();
   const { token, user } = useAuthStore();
-
-  // Función para calcular la hora_de_reporte (hora en punto)
-  const calcularHoraReporte = () => {
-    const ahora = new Date();
-    const hora = ahora.getHours();
-    return `${hora.toString().padStart(2, "0")}:00`;
-  };
-
-  // Función para determinar si está en tiempo o atrasado
-  const determinarInTime = () => {
-    const ahora = new Date();
-    const minutosActuales = ahora.getHours() * 60 + ahora.getMinutes();
-    const horaReporte = calcularHoraReporte();
-    const [horaStr] = horaReporte.split(":");
-    const minutosReporte = parseInt(horaStr) * 60;
-
-    return minutosActuales - minutosReporte <= 20 ? "en tiempo" : "atrasado";
-  };
-
-  // Verificar si ya existe un reporte para la hora actual
-  const verificarReporteExistente = async () => {
-    if (!entradaRegistrada || !entradaRegistrada.nombre) return;
-
-    try {
-      setVerificandoReporte(true);
-      const response = await fetch(
-        `${API_URL}/reporte/verificar/${locacion}/${entradaRegistrada.nombre}/${numeroGuardia}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setReporteEnviado(data.existe);
-      }
-    } catch (error) {
-      console.error("Error al verificar reporte:", error);
-    } finally {
-      setVerificandoReporte(false);
-    }
-  };
 
   // Cargar datos del usuario y verificar guardias activos
   useEffect(() => {
     const cargarDatos = async () => {
       if (user) {
         setUserData(user);
-        setLocacion(user.username);
 
         // Verificar estado de todos los guardias
         await verificarGuardiasActivos();
@@ -100,10 +52,8 @@ export default function Reporte() {
           setNumeroGuardia(1);
         }
       } else {
-        // Si user is null, resetear el estado
+        // Si user es null, resetear el estado
         setUserData(null);
-        setLocacion("");
-        setNumeroGuardia(null);
         setCargandoGuardias(false);
       }
     };
@@ -111,13 +61,6 @@ export default function Reporte() {
     cargarDatos();
   }, [user, token]);
 
-  // Verificar reporte existente cuando cambia la entrada registrada
-  useEffect(() => {
-    if (entradaRegistrada) {
-      verificarReporteExistente();
-    }
-  }, [entradaRegistrada]);
-  // Efecto para detectar cambios en guardias
   useEffect(() => {
     if (guardiasActualizados) {
       console.log("Actualización detectada:", tipoActualizacion, "en guardia", guardiaAfectado);
@@ -128,13 +71,11 @@ export default function Reporte() {
       // Si fue una salida y estamos viendo ese guardia específico, resetear la selección
       if (tipoActualizacion === "salida" && numeroGuardia === guardiaAfectado) {
         setEntradaRegistrada(null);
-        setReporteEnviado(false);
       }
 
       resetGuardiasActualizados();
     }
   }, [guardiasActualizados, tipoActualizacion, guardiaAfectado]);
-
   // Verificar estado de todos los guardias del usuario
   const verificarGuardiasActivos = async () => {
     try {
@@ -171,7 +112,6 @@ export default function Reporte() {
   // Cuando se selecciona un número de guardia
   const handleSeleccionGuardia = async (numero) => {
     setNumeroGuardia(numero);
-    setReporteEnviado(false);
 
     // Verificar si este guardia específico está activo
     if (guardiasActivos[numero]) {
@@ -207,10 +147,10 @@ export default function Reporte() {
     }
   };
 
-  // Crear reporte
+  // Crear reporte de incidente
   const handleSubmit = async () => {
-    if (!entradaRegistrada || !entradaRegistrada.nombre) {
-      Alert.alert("Error", "No hay una entrada activa para crear el reporte");
+    if (!titulo) {
+      Alert.alert("Error", "El título es requerido");
       return;
     }
 
@@ -219,68 +159,83 @@ export default function Reporte() {
       return;
     }
 
-    if (reporteEnviado) {
-      Alert.alert("Información", "Ya has enviado un reporte para esta hora");
+    if (!entradaRegistrada || !entradaRegistrada.nombre) {
+      Alert.alert("Error", "No hay una entrada activa para crear el reporte de incidente");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Calcular valores para el reporte
-      const hora_de_reporte = calcularHoraReporte();
-      const in_time = determinarInTime();
+      // Crear el reporte de incidente - usar JSON en lugar de FormData para los campos normales
+      const incidenteData = {
+        title: titulo,
+        description: descripcion,
+        guardia: entradaRegistrada.nombre,
+        numero_guardia: numeroGuardia,
+        location: user.username, // Usamos el username como location
+      };
 
-      // Obtener el nombre del guardia de la entrada activa
-      const guardia = entradaRegistrada.nombre;
-
-      // Crear el reporte
-      const formData = new FormData();
-      formData.append("location", locacion);
-      formData.append("guardia", guardia);
-      formData.append("descripcion", descripcion);
-      formData.append("numero_guardia", numeroGuardia.toString());
-      formData.append("hora_de_reporte", hora_de_reporte);
-      formData.append("in_time", in_time);
-
+      // Si hay imagen, usar FormData, sino usar JSON normal
       if (image) {
+        const formData = new FormData();
+
+        // Agregar todos los campos al FormData
+        Object.keys(incidenteData).forEach((key) => {
+          formData.append(key, incidenteData[key]);
+        });
+
         const fileType = image.split(".").pop();
         const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
 
         formData.append("image", {
           uri: image,
-          name: `reporte_image.${fileType}`,
+          name: `incidente_image.${fileType}`,
           type: mimeType,
         });
-      }
 
-      const response = await fetch(`${API_URL}/reporte`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-        body: formData,
-      });
+        const response = await fetch(`${API_URL}/incidente`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // No establecer Content-Type para FormData, el navegador lo hará automáticamente
+          },
+          body: formData,
+        });
 
-      const responseData = await response.json();
+        const responseData = await response.json();
 
-      if (!response.ok) {
-        if (responseData.reporteExistente) {
-          setReporteEnviado(true);
-          Alert.alert("Información", "Ya has enviado un reporte para esta hora");
-          return;
+        if (!response.ok) {
+          throw new Error(responseData.message || "Error al crear el reporte de incidente");
         }
-        throw new Error(responseData.message || "Error al crear el reporte");
+
+        Alert.alert("Éxito", "¡El reporte de incidente ha sido registrado correctamente!");
+      } else {
+        // Sin imagen, enviar como JSON normal
+        const response = await fetch(`${API_URL}/incidente`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(incidenteData),
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message || "Error al crear el reporte de incidente");
+        }
+
+        Alert.alert("Éxito", "¡El reporte de incidente ha sido registrado correctamente!");
       }
 
-      Alert.alert("Éxito", "¡El reporte ha sido registrado correctamente!");
-      setReporteEnviado(true);
+      setTitulo("");
       setDescripcion("");
       setImage(null);
     } catch (error) {
-      console.error("Error al crear reporte:", error);
-      Alert.alert("Error", error.message || "Algo salió mal al crear el reporte");
+      console.error("Error al crear reporte de incidente:", error);
+      Alert.alert("Error", error.message || "Algo salió mal al crear el reporte de incidente");
     } finally {
       setLoading(false);
     }
@@ -345,8 +300,8 @@ export default function Reporte() {
     return (
       <View style={styles.container}>
         <View style={styles.card}>
-          <Text style={styles.title}>Seleccionar Guardia</Text>
-          <Text style={styles.subtitle}>Elige el número de guardia a reportar</Text>
+          <Text style={styles.title}>Reportar Incidente</Text>
+          <Text style={styles.subtitle}>Selecciona el guardia que reporta el incidente</Text>
 
           <View style={styles.selectorContainerGrande}>
             {opcionesGuardias.map((numero) => (
@@ -395,9 +350,8 @@ export default function Reporte() {
             <Text style={{ fontWeight: "bold" }}> Guardia {numeroGuardia}</Text>
           </Text>
           <Text style={styles.infoText}>
-            Para crear un reporte, primero debes registrar una entrada para este guardia.
+            Para reportar un incidente, primero debes registrar una entrada para este guardia.
           </Text>
-
           {user.numero_guardias > 1 && (
             <TouchableOpacity
               style={[styles.button, styles.secondaryButton]}
@@ -419,59 +373,7 @@ export default function Reporte() {
     );
   }
 
-  // Si ya se envió un reporte para esta hora
-  if (reporteEnviado) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Ionicons
-            style={{ alignSelf: "center" }}
-            name="checkmark-done-circle"
-            size={60}
-            color={COLORS.success}
-          />
-          <Text style={styles.title}>Reporte Enviado</Text>
-          <Text style={styles.subtitle}>
-            Ya has enviado un reporte para esta hora ({calcularHoraReporte()})
-          </Text>
-
-          <View style={styles.infoContainer}>
-            <Text style={styles.infoLabel}>Guardia:</Text>
-            <Text style={styles.infoValue}>{entradaRegistrada.nombre}</Text>
-
-            <Text style={styles.infoLabel}>Ubicación:</Text>
-            <Text style={styles.infoValue}>{entradaRegistrada.locacion}</Text>
-
-            <Text style={styles.infoLabel}>Hora de reporte:</Text>
-            <Text style={styles.infoValue}>{calcularHoraReporte()}</Text>
-          </View>
-
-          <Text style={styles.infoText}>Puedes enviar otro reporte en la próxima hora.</Text>
-
-          {user.numero_guardias > 1 && (
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={() => {
-                setNumeroGuardia(null);
-                setEntradaRegistrada(null);
-                setReporteEnviado(false);
-              }}
-            >
-              <Ionicons
-                name="arrow-back-outline"
-                size={20}
-                color={COLORS.text}
-                style={styles.buttonIcon}
-              />
-              <Text style={[styles.buttonText, styles.secondaryButtonText]}>Cambiar Guardia</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </View>
-    );
-  }
-
-  // Mostrar formulario de reporte solo si hay una entrada activa y no se ha enviado reporte
+  // Mostrar formulario de reporte de incidente
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -480,7 +382,7 @@ export default function Reporte() {
       <ScrollView contentContainerStyle={styles.container} style={styles.scrollViewStyle}>
         <View style={styles.card}>
           {userData.numero_guardias > 1 ? (
-            <Text style={styles.title}>Crear Reporte - Guardia {numeroGuardia}</Text>
+            <Text style={styles.title}>Reportar Incidente - Guardia {numeroGuardia}</Text>
           ) : (
             ""
           )}
@@ -494,14 +396,18 @@ export default function Reporte() {
 
             <Text style={styles.infoLabel}>Hora de entrada:</Text>
             <Text style={styles.infoValue}>{formatFecha(entradaRegistrada.entrada)}</Text>
+          </View>
 
-            <Text style={styles.infoLabel}>Hora de reporte calculada:</Text>
-            <Text style={styles.infoValue}>{calcularHoraReporte()}</Text>
-
-            <Text style={styles.infoLabel}>Estado:</Text>
-            <Text style={styles.infoValue}>
-              {determinarInTime() === "en tiempo" ? "En tiempo ✅" : "Atrasado ⚠️"}
-            </Text>
+          {/* Título del incidente */}
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Título del Incidente*</Text>
+            <TextInput
+              style={styles.input}
+              value={titulo}
+              onChangeText={setTitulo}
+              placeholder="Ingresa el título del incidente"
+              placeholderTextColor={COLORS.textSecondary}
+            />
           </View>
 
           {/* Descripción */}
@@ -511,8 +417,8 @@ export default function Reporte() {
               style={[styles.input, styles.textArea]}
               value={descripcion}
               onChangeText={setDescripcion}
-              placeholder="Ingresa la descripción del reporte"
-              placeholderTextColor={COLORS.placeholderTexts}
+              placeholder="Describe el incidente en detalle"
+              placeholderTextColor={COLORS.textSecondary}
               multiline={true}
               numberOfLines={4}
             />
@@ -536,19 +442,19 @@ export default function Reporte() {
           <TouchableOpacity
             style={styles.button}
             onPress={handleSubmit}
-            disabled={loading || !descripcion}
+            disabled={loading || !titulo || !descripcion}
           >
             {loading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
               <>
                 <Ionicons
-                  name="document-text-outline"
+                  name="warning-outline"
                   size={20}
                   color={COLORS.white}
                   style={styles.buttonIcon}
                 />
-                <Text style={styles.buttonText}>Crear Reporte</Text>
+                <Text style={styles.buttonText}>Reportar Incidente</Text>
               </>
             )}
           </TouchableOpacity>
@@ -559,9 +465,9 @@ export default function Reporte() {
               onPress={() => {
                 setNumeroGuardia(null);
                 setEntradaRegistrada(null);
+                setTitulo("");
                 setDescripcion("");
                 setImage(null);
-                setReporteEnviado(false);
               }}
             >
               <Ionicons

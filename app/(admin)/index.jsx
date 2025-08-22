@@ -10,10 +10,9 @@ import {
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
-import styles from "../../assets/styles/incidents.styles";
+import styles from "../../assets/styles/index_admin.styles";
 import { API_URL } from "../../constants/api";
 import { Ionicons } from "@expo/vector-icons";
-import { formatPublishDate } from "../../lib/utils";
 import COLORS from "../../constants/colors";
 import Loader from "../../components/Loader";
 import { useRouter } from "expo-router";
@@ -232,11 +231,11 @@ export default function Entradas() {
           )}
 
           <View style={styles.detailsContainer}>
-            <Text style={styles.detailTitle}>Detalles completos:</Text>
-            <View style={styles.detailRow}>
+            {/* <Text style={styles.detailTitle}>Detalles completos:</Text> */}
+            {/* <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Registro ID:</Text>
               <Text style={styles.detailValue}>{item._id}</Text>
-            </View>
+            </View> */}
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Duración:</Text>
               <Text style={styles.detailValue}>
@@ -274,28 +273,34 @@ export default function Entradas() {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.1}
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.screenTitle}>Registro de Entradas</Text>
+          <View>
+            <View style={styles.header}>
+              {/* <Text style={styles.screenTitle}>Registro de Entradas</Text> */}
 
-            {/* Componente DateSelector */}
-            <DateSelector
-              selectedDate={fechaFiltro}
-              onDateChange={handleDateChange}
-              onClearDate={handleClearDate}
-              placeholder="Seleccionar fecha"
-              label="Filtrar por fecha:"
-            />
+              {/* Componente DateSelector */}
+              <View style={styles.headerDate}>
+                <DateSelector
+                  selectedDate={fechaFiltro}
+                  onDateChange={handleDateChange}
+                  onClearDate={handleClearDate}
+                  placeholder="Todas"
+                  label="Filtrar por fecha:"
+                />
+              </View>
 
-            {/* Componente LocationSelector */}
-            <LocationSelector
-              selectedLocation={selectedLocation}
-              onLocationChange={handleLocationChange}
-              onClearLocation={handleClearLocation}
-              placeholder="Seleccionar ubicación"
-              label="Filtrar por ubicación:"
-            />
+              {/* Componente LocationSelector */}
+              <View style={styles.headerlocation}>
+                <LocationSelector
+                  selectedLocation={selectedLocation}
+                  onLocationChange={handleLocationChange}
+                  onClearLocation={handleClearLocation}
+                  placeholder="Seleccionar ubicación"
+                  label="Filtrar por ubicación:"
+                />
+              </View>
 
-            {/* Limpiar Filtros */}
+              {/* Limpiar Filtros */}
+            </View>
             {filtroActivo && (
               <TouchableOpacity style={styles.limpiarFiltrosButton} onPress={limpiarTodosFiltros}>
                 <Ionicons name="close-circle-outline" size={16} color={COLORS.danger} />

@@ -44,7 +44,7 @@ export default function TabLayout() {
         options={{
           title: "Asistencia",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkmark-outline" size={size} color={color} />
+            <Ionicons name="log-in-outline" size={size} color={color} />
           ),
         }}
       />
@@ -59,20 +59,20 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="reportar_incidente"
+        options={{
+          title: "Incidente",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="warning-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="create_report_incident"
-        options={{
-          title: "Incidente",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="warning-outline" size={size} color={color} />
           ),
         }}
       />
@@ -88,7 +88,7 @@ function getHeaderTitle(route) {
       return "Reporte de Horario";
     case "profile":
       return "Mi Perfil";
-    case "create_report_incident":
+    case "reportar_incidente":
       return "Reportar Incidente";
     default:
       return "";

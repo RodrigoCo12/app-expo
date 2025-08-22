@@ -1,3 +1,494 @@
+// import { useState, useEffect } from "react";
+// import React from "react";
+// import {
+//   View,
+//   Text,
+//   Platform,
+//   KeyboardAvoidingView,
+//   ScrollView,
+//   TouchableOpacity,
+//   Alert,
+//   Image,
+//   ActivityIndicator,
+//   TextInput,
+// } from "react-native";
+// import { useRouter } from "expo-router";
+// import styles from "../../assets/styles/index_guardia.styles";
+// import { Ionicons } from "@expo/vector-icons";
+// import COLORS from "../../constants/colors";
+// import { useAuthStore } from "../../store/authStore";
+// import { useGuardiasStore } from "../../store/guardiasStore";
+// import * as ImagePicker from "expo-image-picker";
+// import { API_URL } from "../../constants/api";
+
+// export default function Entrada() {
+//   const { setGuardiasActualizados } = useGuardiasStore();
+//   const [locacion, setLocacion] = useState("");
+//   const [numeroGuardia, setNumeroGuardia] = useState(null);
+//   const [nombre, setNombre] = useState("");
+//   const [image, setImage] = useState(null);
+//   const [loading, setLoading] = useState(false);
+//   const [userData, setUserData] = useState(null);
+//   const [entradaRegistrada, setEntradaRegistrada] = useState(null);
+//   const [registrandoSalida, setRegistrandoSalida] = useState(false);
+//   const [cargandoGuardias, setCargandoGuardias] = useState(true);
+//   const [guardiasActivos, setGuardiasActivos] = useState({});
+
+//   const router = useRouter();
+//   const { token, user } = useAuthStore();
+
+//   // Cargar datos del usuario y verificar guardias activos
+//   useEffect(() => {
+//     const cargarDatos = async () => {
+//       if (user) {
+//         setUserData(user);
+//         setLocacion(user.username);
+
+//         // Verificar estado de todos los guardias
+//         await verificarGuardiasActivos();
+
+//         // Si el usuario tiene exactamente 1 guardia, seleccionarlo automáticamente
+//         if (user.numero_guardias === 1) {
+//           setNumeroGuardia(1);
+//         }
+//       } else {
+//         // Si user es null, resetear el estado
+//         setUserData(null);
+//         setLocacion("");
+//         setNumeroGuardia(null);
+//         setCargandoGuardias(false);
+//       }
+//     };
+
+//     cargarDatos();
+//   }, [user, token]);
+
+//   // Verificar estado de todos los guardias del usuario
+//   const verificarGuardiasActivos = async () => {
+//     try {
+//       setCargandoGuardias(true);
+//       const activos = {};
+
+//       // Verificar cada guardia del usuario
+//       for (let i = 1; i <= user.numero_guardias; i++) {
+//         const response = await fetch(`${API_URL}/entrada/activo/${user.username}/${i}`, {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         });
+
+//         if (response.ok) {
+//           const entradaActiva = await response.json();
+//           activos[i] = entradaActiva;
+
+//           // Si este guardia está activo y es el único, establecerlo como entrada registrada
+//           if (entradaActiva && user.numero_guardias === 1) {
+//             setEntradaRegistrada(entradaActiva);
+//           }
+//         }
+//       }
+
+//       setGuardiasActivos(activos);
+//     } catch (error) {
+//       console.error("Error al verificar guardias activos:", error);
+//     } finally {
+//       setCargandoGuardias(false);
+//     }
+//   };
+
+//   // Cuando se selecciona un número de guardia
+//   const handleSeleccionGuardia = async (numero) => {
+//     setNumeroGuardia(numero);
+
+//     // Verificar si este guardia específico está activo
+//     if (guardiasActivos[numero]) {
+//       setEntradaRegistrada(guardiasActivos[numero]);
+//     } else {
+//       setEntradaRegistrada(null);
+//     }
+//   };
+
+//   const pickImage = async () => {
+//     try {
+//       if (Platform.OS !== "web") {
+//         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+//         if (status !== "granted") {
+//           Alert.alert("Permiso denegado", "Necesitamos acceso a tu galería para subir una imagen");
+//           return;
+//         }
+//       }
+
+//       const result = await ImagePicker.launchImageLibraryAsync({
+//         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//         allowsEditing: true,
+//         aspect: [4, 3],
+//         quality: 0.2,
+//       });
+
+//       if (!result.canceled) {
+//         setImage(result.assets[0].uri);
+//       }
+//     } catch (error) {
+//       console.error("Error al seleccionar imagen:", error);
+//       Alert.alert("Error", "Hubo un problema al seleccionar tu imagen");
+//     }
+//   };
+
+//   const handleSubmit = async () => {
+//     if (!locacion) {
+//       Alert.alert("Error", "La ubicación es requerida");
+//       return;
+//     }
+
+//     if (!nombre) {
+//       Alert.alert("Error", "El nombre es requerido");
+//       return;
+//     }
+
+//     if (!numeroGuardia) {
+//       Alert.alert("Error", "Debes seleccionar un número de guardia");
+//       return;
+//     }
+
+//     try {
+//       setLoading(true);
+
+//       // Crear la entrada
+//       const formData = new FormData();
+//       formData.append("locacion", locacion);
+//       formData.append("numero_guardia", numeroGuardia.toString());
+//       formData.append("nombre", nombre);
+
+//       if (image) {
+//         const fileType = image.split(".").pop();
+//         const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
+
+//         formData.append("image", {
+//           uri: image,
+//           name: `entrada_image.${fileType}`,
+//           type: mimeType,
+//         });
+//       }
+
+//       const response = await fetch(`${API_URL}/entrada`, {
+//         method: "POST",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "multipart/form-data",
+//         },
+//         body: formData,
+//       });
+
+//       const responseData = await response.json();
+
+//       if (!response.ok) {
+//         throw new Error(responseData.message || "Error al crear la entrada");
+//       }
+
+//       Alert.alert("Éxito", "¡La entrada ha sido registrada correctamente!");
+//       setEntradaRegistrada(responseData);
+//       // Actualizar el estado de guardias activos
+//       setGuardiasActualizados("entrada", numeroGuardia);
+//       setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: responseData }));
+//     } catch (error) {
+//       console.error("Error al crear entrada:", error);
+//       Alert.alert("Error", error.message || "Algo salió mal al crear la entrada");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleRegistrarSalida = async () => {
+//     if (!entradaRegistrada || !entradaRegistrada._id) {
+//       Alert.alert("Error", "No se puede registrar la salida");
+//       return;
+//     }
+
+//     try {
+//       setRegistrandoSalida(true);
+
+//       const response = await fetch(`${API_URL}/entrada/${entradaRegistrada._id}/salida`, {
+//         method: "PUT",
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       const responseData = await response.json();
+
+//       if (!response.ok) {
+//         throw new Error(responseData.message || "Error al registrar la salida");
+//       }
+
+//       Alert.alert("Éxito", "¡La salida ha sido registrada correctamente!");
+//       setGuardiasActualizados("salida", numeroGuardia);
+//       setEntradaRegistrada(null);
+//       // Solo resetear número de guardia si el usuario tiene más de un guardia
+//       if (user && user.numero_guardias > 1) {
+//         setNumeroGuardia(null);
+//       }
+//       // Actualizar el estado de guardias activos
+//       setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: null }));
+//       resetForm();
+//     } catch (error) {
+//       console.error("Error al registrar salida:", error);
+//       Alert.alert("Error", error.message || "Algo salió mal al registrar la salida");
+//     } finally {
+//       setRegistrandoSalida(false);
+//     }
+//   };
+
+//   const resetForm = () => {
+//     setNombre("");
+//     setImage(null);
+//   };
+
+//   // Generar opciones para el selector de número de guardia
+//   const generarOpcionesGuardias = () => {
+//     if (!userData || !userData.numero_guardias || userData.numero_guardias < 1) return [];
+
+//     const opciones = [];
+//     for (let i = 1; i <= userData.numero_guardias; i++) {
+//       opciones.push(i);
+//     }
+//     return opciones;
+//   };
+
+//   const opcionesGuardias = generarOpcionesGuardias();
+
+//   // Formatear fecha para mostrar
+//   const formatFecha = (fecha) => {
+//     if (!fecha) return "No registrada";
+
+//     const date = new Date(fecha);
+//     return date.toLocaleString("es-ES", {
+//       day: "2-digit",
+//       month: "2-digit",
+//       year: "numeric",
+//       hour: "2-digit",
+//       minute: "2-digit",
+//     });
+//   };
+
+//   // Si no hay usuario (logout), mostrar mensaje o redirigir
+//   if (!user) {
+//     return (
+//       <View style={styles.container}>
+//         <View style={styles.card}>
+//           <Text style={styles.title}>Sesión no iniciada</Text>
+//           <Text style={styles.subtitle}>Por favor inicia sesión para acceder a esta función</Text>
+//           <TouchableOpacity style={styles.button} onPress={() => router.push("/login")}>
+//             <Text style={styles.buttonText}>Ir a Login</Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     );
+//   }
+
+//   // Si está cargando la verificación de guardias
+//   if (cargandoGuardias) {
+//     return (
+//       <View style={styles.container}>
+//         <View style={styles.card}>
+//           <ActivityIndicator size="large" color={COLORS.primary} />
+//           <Text style={styles.loadingText}>Verificando estado de guardias...</Text>
+//         </View>
+//       </View>
+//     );
+//   }
+
+//   // Si el usuario tiene más de un guardia y no se ha seleccionado uno, mostrar selector
+//   if (user.numero_guardias > 1 && !numeroGuardia) {
+//     return (
+//       <View style={styles.container}>
+//         <View style={styles.card}>
+//           <Text style={styles.title}>Seleccionar Guardia</Text>
+//           <Text style={styles.subtitle}>Elige el número de guardia a registrar</Text>
+
+//           <View style={styles.selectorContainerGrande}>
+//             {opcionesGuardias.map((numero) => (
+//               <TouchableOpacity
+//                 key={numero}
+//                 style={[
+//                   styles.selectorOptionGrande,
+//                   guardiasActivos[numero] && styles.selectorOptionActivo,
+//                 ]}
+//                 onPress={() => handleSeleccionGuardia(numero)}
+//               >
+//                 <Ionicons
+//                   name={guardiasActivos[numero] ? "checkmark-circle" : "person-outline"}
+//                   size={40}
+//                   color={guardiasActivos[numero] ? COLORS.success : COLORS.text}
+//                 />
+//                 <Text style={styles.selectorOptionTextGrande}>Guardia {numero}</Text>
+//                 <Text style={styles.selectorOptionEstado}>
+//                   {guardiasActivos[numero] ? "ACTIVO" : "DISPONIBLE"}
+//                 </Text>
+//               </TouchableOpacity>
+//             ))}
+//           </View>
+//         </View>
+//       </View>
+//     );
+//   }
+
+//   // Si el guardia seleccionado está activo, mostrar pantalla de salida
+//   if (entradaRegistrada) {
+//     return (
+//       <View style={styles.container}>
+//         <View style={styles.card}>
+//           {userData.numero_guardias > 1 ? (
+//             <Text style={styles.title}>Guardia {numeroGuardia}</Text>
+//           ) : (
+//             ""
+//           )}
+
+//           <View style={styles.estadoContainer}>
+//             <Ionicons name="checkmark-circle" size={60} color={COLORS.success} />
+//             <Text style={styles.estadoTexto}>ESTADO: ACTIVO</Text>
+
+//             <View style={styles.infoContainer}>
+//               <Text style={styles.infoLabel}>Nombre:</Text>
+//               <Text style={styles.infoValue}>{entradaRegistrada.nombre}</Text>
+
+//               <Text style={styles.infoLabel}>Ubicación:</Text>
+//               <Text style={styles.infoValue}>{entradaRegistrada.locacion}</Text>
+
+//               <Text style={styles.infoLabel}>Hora de entrada:</Text>
+//               <Text style={styles.infoValue}>{formatFecha(entradaRegistrada.entrada)}</Text>
+//             </View>
+//           </View>
+
+//           <TouchableOpacity
+//             style={styles.button}
+//             onPress={handleRegistrarSalida}
+//             disabled={registrandoSalida}
+//           >
+//             {registrandoSalida ? (
+//               <ActivityIndicator color={COLORS.white} />
+//             ) : (
+//               <>
+//                 <Ionicons
+//                   name="log-out-outline"
+//                   size={20}
+//                   color={COLORS.white}
+//                   style={styles.buttonIcon}
+//                 />
+//                 <Text style={styles.buttonText}>Registrar Salida</Text>
+//               </>
+//             )}
+//           </TouchableOpacity>
+
+//           {user.numero_guardias > 1 && (
+//             <TouchableOpacity
+//               style={[styles.button, styles.secondaryButton]}
+//               onPress={() => {
+//                 setNumeroGuardia(null);
+//                 setEntradaRegistrada(null);
+//               }}
+//             >
+//               <Ionicons
+//                 name="arrow-back-outline"
+//                 size={20}
+//                 color={COLORS.text}
+//                 style={styles.buttonIcon}
+//               />
+//               <Text style={[styles.buttonText, styles.secondaryButtonText]}>Cambiar Guardia</Text>
+//             </TouchableOpacity>
+//           )}
+//         </View>
+//       </View>
+//     );
+//   }
+
+//   // Mostrar formulario de entrada si el guardia no está activo
+//   return (
+//     <KeyboardAvoidingView
+//       style={{ flex: 1 }}
+//       behavior={Platform.OS === "ios" ? "padding" : "height"}
+//     >
+//       <ScrollView contentContainerStyle={styles.container} style={styles.scrollViewStyle}>
+//         <View style={styles.card}>
+//           {/* <Text style={styles.title}>Registrar Entrada - Guardia {numeroGuardia}</Text>
+//           <Text style={styles.title}>
+//             {userData.numero_guardias > 1 ? "Registrar Entrada - Guardia " + { numeroGuardia } : ""}
+//           </Text> */}
+//           {userData.numero_guardias > 1 ? (
+//             <Text style={styles.title}>Registrar Entrada - Guardia {numeroGuardia}</Text>
+//           ) : (
+//             ""
+//           )}
+
+//           <View style={styles.form}>
+//             <View style={styles.formGroup}>
+//               <Text style={styles.label}>Ubicación:</Text>
+//               <Text style={styles.titleCardText}>{locacion || user?.username}</Text>
+//             </View>
+
+//             {/* Campo para ingresar el nombre */}
+//             <View style={styles.formGroup}>
+//               <Text style={styles.label}>Nombre*</Text>
+//               <TextInput
+//                 style={styles.input}
+//                 value={nombre}
+//                 onChangeText={setNombre}
+//                 placeholder="Ingresa el nombre completo.."
+//                 placeholderTextColor={COLORS.placeholderText}
+//               />
+//             </View>
+
+//             {/* Imagen */}
+//             <View style={styles.formGroup}>
+//               <Text style={styles.label}>Imagen (Opcional)</Text>
+//               <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+//                 {image ? (
+//                   <Image source={{ uri: image }} style={styles.previewImage} />
+//                 ) : (
+//                   <View style={styles.placeholderContainer}>
+//                     <Ionicons name="camera-outline" size={40} color={COLORS.textSecondary} />
+//                     <Text style={styles.placeholderText}>Toca para seleccionar imagen</Text>
+//                   </View>
+//                 )}
+//               </TouchableOpacity>
+//             </View>
+
+//             <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
+//               {loading ? (
+//                 <ActivityIndicator color={COLORS.white} />
+//               ) : (
+//                 <>
+//                   <Ionicons
+//                     name="log-in-outline"
+//                     size={20}
+//                     color={COLORS.white}
+//                     style={styles.buttonIcon}
+//                   />
+//                   <Text style={styles.buttonText}>Registrar Entrada</Text>
+//                 </>
+//               )}
+//             </TouchableOpacity>
+
+//             {user.numero_guardias > 1 && (
+//               <TouchableOpacity
+//                 style={[styles.button, styles.secondaryButton]}
+//                 onPress={() => setNumeroGuardia(null)}
+//               >
+//                 <Ionicons
+//                   name="arrow-back-outline"
+//                   size={20}
+//                   color={COLORS.text}
+//                   style={styles.buttonIcon}
+//                 />
+//                 <Text style={[styles.buttonText, styles.secondaryButtonText]}>Cambiar Guardia</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         </View>
+//       </ScrollView>
+//     </KeyboardAvoidingView>
+//   );
+// }
 import { useState, useEffect } from "react";
 import React from "react";
 import {
@@ -13,14 +504,16 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
-import styles from "../../assets/styles/create.styles";
+import styles from "../../assets/styles/index_guardia.styles";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
 import { useAuthStore } from "../../store/authStore";
+import { useGuardiasStore } from "../../store/guardiasStore";
 import * as ImagePicker from "expo-image-picker";
 import { API_URL } from "../../constants/api";
 
 export default function Entrada() {
+  const { setGuardiasActualizados } = useGuardiasStore();
   const [locacion, setLocacion] = useState("");
   const [numeroGuardia, setNumeroGuardia] = useState(null);
   const [nombre, setNombre] = useState("");
@@ -148,51 +641,67 @@ export default function Entrada() {
       return;
     }
 
-    try {
-      setLoading(true);
-
-      // Crear la entrada
-      const formData = new FormData();
-      formData.append("locacion", locacion);
-      formData.append("numero_guardia", numeroGuardia.toString());
-      formData.append("nombre", nombre);
-
-      if (image) {
-        const fileType = image.split(".").pop();
-        const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
-
-        formData.append("image", {
-          uri: image,
-          name: `entrada_image.${fileType}`,
-          type: mimeType,
-        });
-      }
-
-      const response = await fetch(`${API_URL}/entrada`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+    // CONFIRMACIÓN ANTES DE REGISTRAR ENTRADA
+    Alert.alert(
+      "Confirmar Entrada",
+      `¿Estás seguro de registrar la entrada para el Guardia ${numeroGuardia}?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
         },
-        body: formData,
-      });
+        {
+          text: "Confirmar",
+          onPress: async () => {
+            try {
+              setLoading(true);
 
-      const responseData = await response.json();
+              // Crear la entrada
+              const formData = new FormData();
+              formData.append("locacion", locacion);
+              formData.append("numero_guardia", numeroGuardia.toString());
+              formData.append("nombre", nombre);
 
-      if (!response.ok) {
-        throw new Error(responseData.message || "Error al crear la entrada");
-      }
+              if (image) {
+                const fileType = image.split(".").pop();
+                const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
 
-      Alert.alert("Éxito", "¡La entrada ha sido registrada correctamente!");
-      setEntradaRegistrada(responseData);
-      // Actualizar el estado de guardias activos
-      setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: responseData }));
-    } catch (error) {
-      console.error("Error al crear entrada:", error);
-      Alert.alert("Error", error.message || "Algo salió mal al crear la entrada");
-    } finally {
-      setLoading(false);
-    }
+                formData.append("image", {
+                  uri: image,
+                  name: `entrada_image.${fileType}`,
+                  type: mimeType,
+                });
+              }
+
+              const response = await fetch(`${API_URL}/entrada`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+                body: formData,
+              });
+
+              const responseData = await response.json();
+
+              if (!response.ok) {
+                throw new Error(responseData.message || "Error al crear la entrada");
+              }
+
+              Alert.alert("Éxito", "¡La entrada ha sido registrada correctamente!");
+              setEntradaRegistrada(responseData);
+              setGuardiasActualizados("entrada", numeroGuardia);
+              setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: responseData }));
+            } catch (error) {
+              console.error("Error al crear entrada:", error);
+              Alert.alert("Error", error.message || "Algo salió mal al crear la entrada");
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleRegistrarSalida = async () => {
@@ -201,38 +710,55 @@ export default function Entrada() {
       return;
     }
 
-    try {
-      setRegistrandoSalida(true);
-
-      const response = await fetch(`${API_URL}/entrada/${entradaRegistrada._id}/salida`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+    // CONFIRMACIÓN ANTES DE REGISTRAR SALIDA
+    Alert.alert(
+      "Confirmar Salida",
+      `¿Estás seguro de registrar la salida para el Guardia ${numeroGuardia}?`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
         },
-      });
+        {
+          text: "Confirmar",
+          onPress: async () => {
+            try {
+              setRegistrandoSalida(true);
 
-      const responseData = await response.json();
+              const response = await fetch(`${API_URL}/entrada/${entradaRegistrada._id}/salida`, {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              });
 
-      if (!response.ok) {
-        throw new Error(responseData.message || "Error al registrar la salida");
-      }
+              const responseData = await response.json();
 
-      Alert.alert("Éxito", "¡La salida ha sido registrada correctamente!");
-      setEntradaRegistrada(null);
-      // Solo resetear número de guardia si el usuario tiene más de un guardia
-      if (user && user.numero_guardias > 1) {
-        setNumeroGuardia(null);
-      }
-      // Actualizar el estado de guardias activos
-      setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: null }));
-      resetForm();
-    } catch (error) {
-      console.error("Error al registrar salida:", error);
-      Alert.alert("Error", error.message || "Algo salió mal al registrar la salida");
-    } finally {
-      setRegistrandoSalida(false);
-    }
+              if (!response.ok) {
+                throw new Error(responseData.message || "Error al registrar la salida");
+              }
+
+              Alert.alert("Éxito", "¡La salida ha sido registrada correctamente!");
+              setGuardiasActualizados("salida", numeroGuardia);
+              setEntradaRegistrada(null);
+
+              if (user && user.numero_guardias > 1) {
+                setNumeroGuardia(null);
+              }
+
+              setGuardiasActivos((prev) => ({ ...prev, [numeroGuardia]: null }));
+              resetForm();
+            } catch (error) {
+              console.error("Error al registrar salida:", error);
+              Alert.alert("Error", error.message || "Algo salió mal al registrar la salida");
+            } finally {
+              setRegistrandoSalida(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const resetForm = () => {
@@ -334,7 +860,11 @@ export default function Entrada() {
     return (
       <View style={styles.container}>
         <View style={styles.card}>
-          <Text style={styles.title}>Guardia {numeroGuardia} - ACTIVO</Text>
+          {userData.numero_guardias > 1 ? (
+            <Text style={styles.title}>Guardia {numeroGuardia}</Text>
+          ) : (
+            ""
+          )}
 
           <View style={styles.estadoContainer}>
             <Ionicons name="checkmark-circle" size={60} color={COLORS.success} />
@@ -353,7 +883,7 @@ export default function Entrada() {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, styles.salidaButton]}
+            style={styles.button}
             onPress={handleRegistrarSalida}
             disabled={registrandoSalida}
           >
@@ -363,7 +893,7 @@ export default function Entrada() {
               <>
                 <Ionicons
                   name="log-out-outline"
-                  size={24}
+                  size={20}
                   color={COLORS.white}
                   style={styles.buttonIcon}
                 />
@@ -402,16 +932,16 @@ export default function Entrada() {
     >
       <ScrollView contentContainerStyle={styles.container} style={styles.scrollViewStyle}>
         <View style={styles.card}>
-          <Text style={styles.title}>Registrar Entrada - Guardia {numeroGuardia}</Text>
+          {userData.numero_guardias > 1 ? (
+            <Text style={styles.title}>Registrar Entrada - Guardia {numeroGuardia}</Text>
+          ) : (
+            ""
+          )}
 
           <View style={styles.form}>
-            {/* Ubicación (username del usuario) */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Ubicación</Text>
-              <View style={styles.disabledInput}>
-                <Text style={styles.disabledInputText}>{locacion || user?.username}</Text>
-              </View>
-              <Text style={styles.helperText}>Esta ubicación está asociada a tu usuario</Text>
+              <Text style={styles.label}>Ubicación:</Text>
+              <Text style={styles.titleCardText}>{locacion || user?.username}</Text>
             </View>
 
             {/* Campo para ingresar el nombre */}
@@ -421,8 +951,8 @@ export default function Entrada() {
                 style={styles.input}
                 value={nombre}
                 onChangeText={setNombre}
-                placeholder="Ingresa el nombre completo"
-                placeholderTextColor={COLORS.textSecondary}
+                placeholder="Ingresa el nombre completo.."
+                placeholderTextColor={COLORS.placeholderText}
               />
             </View>
 

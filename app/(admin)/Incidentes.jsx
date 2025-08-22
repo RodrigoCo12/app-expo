@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
-import styles from "../../assets/styles/incidents.styles";
+import styles from "../../assets/styles/incidentes.styles";
 import { API_URL } from "../../constants/api";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../../constants/colors";
@@ -204,31 +204,31 @@ export default function Incidentes() {
             <Text style={styles.detailTitle}>Descripción del incidente:</Text>
             <Text style={styles.descriptionText}>{item.description}</Text>
 
-            {item.image && (
-              <View style={styles.imageContainer}>
-                <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
-              </View>
-            )}
-
+            {/* 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>ID del reporte:</Text>
-              <Text style={styles.detailValue}>{item._id}</Text>
+            <Text style={styles.detailLabel}>ID del reporte:</Text>
+            <Text style={styles.detailValue}>{item._id}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Ubicación:</Text>
-              <Text style={styles.detailValue}>{item.location}</Text>
+            <Text style={styles.detailLabel}>Ubicación:</Text>
+            <Text style={styles.detailValue}>{item.location}</Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Guardia:</Text>
-              <Text style={styles.detailValue}>{item.guardia}</Text>
+            <Text style={styles.detailLabel}>Guardia:</Text>
+            <Text style={styles.detailValue}>{item.guardia}</Text>
             </View>
             {item.numero_guardia && (
               <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Número de guardia:</Text>
-                <Text style={styles.detailValue}>#{item.numero_guardia}</Text>
+              <Text style={styles.detailLabel}>Número de guardia:</Text>
+              <Text style={styles.detailValue}>#{item.numero_guardia}</Text>
               </View>
-            )}
+              )} */}
           </View>
+          {item.image && (
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
+            </View>
+          )}
         </View>
       )}
     </TouchableOpacity>
@@ -255,28 +255,34 @@ export default function Incidentes() {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.1}
         ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.screenTitle}>Reportes de Incidentes</Text>
+          <View>
+            <View style={styles.header}>
+              {/* <Text style={styles.screenTitle}>Registro de Entradas</Text> */}
 
-            {/* Componente DateSelector */}
-            <DateSelector
-              selectedDate={fechaFiltro}
-              onDateChange={handleDateChange}
-              onClearDate={handleClearDate}
-              placeholder="Seleccionar fecha"
-              label="Filtrar por fecha:"
-            />
+              {/* Componente DateSelector */}
+              <View style={styles.headerDate}>
+                <DateSelector
+                  selectedDate={fechaFiltro}
+                  onDateChange={handleDateChange}
+                  onClearDate={handleClearDate}
+                  placeholder="Todas"
+                  label="Filtrar por fecha:"
+                />
+              </View>
 
-            {/* Componente LocationSelector */}
-            <LocationSelector
-              selectedLocation={selectedLocation}
-              onLocationChange={handleLocationChange}
-              onClearLocation={handleClearLocation}
-              placeholder="Seleccionar ubicación"
-              label="Filtrar por ubicación:"
-            />
+              {/* Componente LocationSelector */}
+              <View style={styles.headerlocation}>
+                <LocationSelector
+                  selectedLocation={selectedLocation}
+                  onLocationChange={handleLocationChange}
+                  onClearLocation={handleClearLocation}
+                  placeholder="Seleccionar ubicación"
+                  label="Filtrar por ubicación:"
+                />
+              </View>
 
-            {/* Limpiar Filtros */}
+              {/* Limpiar Filtros */}
+            </View>
             {filtroActivo && (
               <TouchableOpacity style={styles.limpiarFiltrosButton} onPress={limpiarTodosFiltros}>
                 <Ionicons name="close-circle-outline" size={16} color={COLORS.danger} />

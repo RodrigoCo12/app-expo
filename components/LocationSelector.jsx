@@ -14,6 +14,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
 const LocationSelector = ({
   selectedLocation,
   onLocationChange,
@@ -30,8 +31,6 @@ const LocationSelector = ({
   const fetchLocations = async () => {
     try {
       setLoading(true);
-
-      // Obtener todos los usuarios no admin
       const response = await fetch(`${API_URL}/auth/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -41,12 +40,8 @@ const LocationSelector = ({
       }
 
       const users = await response.json();
-
-      // Filtrar usuarios no admin y extraer usernames
       const nonAdminUsers = users.filter((user) => user.admin !== "valido");
       const userLocations = nonAdminUsers.map((user) => user.username);
-
-      // Eliminar duplicados y ordenar alfabéticamente
       const uniqueLocations = [...new Set(userLocations)].sort();
 
       setLocations(uniqueLocations);
@@ -77,6 +72,9 @@ const LocationSelector = ({
     setDropdownPosition({ x, y: y + height, width });
   };
 
+  // CORRECCIÓN: Mostrar clear button solo cuando hay una ubicación específica seleccionada
+  const showClearButton = selectedLocation && selectedLocation !== "Todos";
+
   if (loading) {
     return (
       <View style={styles.filtrosContainer}>
@@ -104,7 +102,8 @@ const LocationSelector = ({
             {selectedLocation || placeholder}
           </Text>
 
-          {selectedLocation && (
+          {/* CORRECCIÓN: Solo mostrar clear button cuando hay una ubicación específica seleccionada */}
+          {showClearButton && (
             <TouchableOpacity
               onPress={(e) => {
                 e.stopPropagation();
@@ -128,6 +127,7 @@ const LocationSelector = ({
           transparent={true}
           animationType="fade"
           onRequestClose={() => setShowDropdown(false)}
+          // style={{ height: "20" }}
         >
           <TouchableWithoutFeedback onPress={() => setShowDropdown(false)}>
             <View style={styles.modalOverlay}>
@@ -136,7 +136,6 @@ const LocationSelector = ({
                   styles.locationDropdown,
                   {
                     top: dropdownPosition.y,
-                    // left: dropdownPosition.x,
                     width: dropdownPosition.width,
                   },
                 ]}
@@ -159,7 +158,7 @@ const LocationSelector = ({
                     onPress={() => handleLocationSelect(location)}
                   >
                     <Ionicons
-                      name="person-outline"
+                      name="location-outline"
                       size={18}
                       color={selectedLocation === location ? COLORS.white : COLORS.text}
                     />

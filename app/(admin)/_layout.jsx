@@ -49,39 +49,22 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="create"
-        options={{
-          title: "Asistencia",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkmark-outline" size={size} color={color} />
-          ),
-        }}
-      /> */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="reportes"
         options={{
           title: "Reportes",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="warning-outline" size={size} color={color} />
+            <Ionicons name="checkbox-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="incidentsUser"
+        name="Incidentes"
         options={{
           title: "Incidentes",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="checkbox-outline" size={size} color={color} />
+            <Ionicons name="warning-outline" size={size} color={color} />
           ),
         }}
       />
@@ -91,6 +74,15 @@ export default function TabLayout() {
           title: "Pocisiones",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="body-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
@@ -107,8 +99,10 @@ function getHeaderTitle(route) {
       return "Mi Perfil";
     case "reportes":
       return "Reportes de Guardias";
-    case "incidentsUser":
+    case "Incidentes":
       return "Incidentes Reportados";
+    case "posicion_trabajadores":
+      return "Guardias Activos";
     default:
       return "";
   }

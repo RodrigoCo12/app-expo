@@ -9,7 +9,7 @@ const DateSelector = ({
   selectedDate,
   onDateChange,
   onClearDate,
-  placeholder = "Seleccionar fecha",
+  placeholder,
   label = "Filtrar por fecha:",
   maximumDate = new Date(),
 }) => {

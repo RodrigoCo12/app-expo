@@ -1,12 +1,13 @@
-// styles/create.styles.js
 import { StyleSheet } from "react-native";
 import COLORS from "../../../constants/colors";
 
 const styles = StyleSheet.create({
   // Estilos para el DateSelector
   filtrosContainer: {
-    marginBottom: 15,
+    // marginBottom: 15,
     width: "100%",
+    // backgroundColor: "#4f344f",
+    height: 50,
   },
   filtroLabel: {
     fontSize: 14,
@@ -17,16 +18,17 @@ const styles = StyleSheet.create({
   datePickerButton: {
     flexDirection: "row",
     alignItems: "center",
+    height: 50,
     backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.gray,
+    borderColor: COLORS.border,
     borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    padding: 10,
+    // marginBottom: 10,
   },
   datePickerText: {
-    marginLeft: 10,
-    fontSize: 16,
+    marginLeft: 5,
+    fontSize: 13,
     color: COLORS.text,
     flex: 1,
   },
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: COLORS.grayLight,
     borderRadius: 8,
-    padding: 10,
+    // padding: 10,
     marginTop: 10,
   },
   limpiarFiltrosText: {
