@@ -1,0 +1,239 @@
+import { StyleSheet } from "react-native";
+import COLORS from "../../constants/colors";
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    backgroundColor: COLORS.background,
+    padding: 16,
+    justifyContent: "center",
+  },
+  scrollViewStyle: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  loadingText: {
+    marginTop: 20,
+    textAlign: "center",
+    color: COLORS.textSecondary,
+  },
+  selectorContainerGrande: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between", // Cambiado a space-between para mejor distribución
+    marginVertical: 20,
+    paddingHorizontal: 10, // Agregado padding para mejor espaciado
+  },
+  selectorOptionGrande: {
+    width: "48%", // 48% para que quepan 2 por fila con espacio entre ellos
+    height: 150,
+    borderRadius: 15,
+    backgroundColor: COLORS.cardBackground,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 15, // Solo margen inferior para las filas
+    padding: 15,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  selectorOptionActivo: {
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.white,
+  },
+  selectorOptionTextGrande: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.text,
+    marginTop: 10,
+  },
+  selectorOptionEstado: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: COLORS.textSecondary,
+    marginTop: 5,
+  },
+  estadoContainer: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  estadoTexto: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: COLORS.success,
+    marginVertical: 15,
+  },
+  infoContainer: {
+    width: "100%",
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    padding: 20,
+    marginVertical: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  infoLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: COLORS.textSecondary,
+    marginTop: 10,
+  },
+  infoValue: {
+    fontSize: 16,
+    color: COLORS.text,
+    marginBottom: 5,
+  },
+  salidaButton: {
+    backgroundColor: COLORS.warning,
+    paddingVertical: 18,
+    marginBottom: 15,
+  },
+  secondaryButton: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  secondaryButtonText: {
+    color: COLORS.text,
+  },
+  titleCardText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  helperText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: COLORS.text,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  input: {
+    padding: 15,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.gray,
+    marginBottom: 5,
+    fontSize: 16,
+    color: COLORS.text,
+  },
+  iconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  card: {
+    // alignItems: "center",
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 16,
+    padding: 20,
+    marginVertical: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+  },
+  form: {
+    marginBottom: 16,
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    color: COLORS.textPrimary,
+    fontWeight: "500",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 12,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  textArea: {
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 12,
+    height: 100,
+    color: COLORS.textDark,
+  },
+  imagePicker: {
+    width: "100%",
+    height: 200,
+    backgroundColor: COLORS.inputBackground,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: "hidden",
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+  },
+  placeholderContainer: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    color: COLORS.textSecondary,
+    marginTop: 8,
+  },
+  button: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    height: 50,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+});
+
+export default styles;
