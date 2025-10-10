@@ -187,7 +187,6 @@ export default function Reportes() {
     >
       <View style={styles.reporteHeader}>
         <View style={styles.reporteInfo}>
-          {/* CAMBIO: Mostrar ubicación como título principal */}
           <Text style={styles.ubicacionText}>{item.location}</Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: getInTimeColor(item.in_time) }]}>
@@ -200,7 +199,6 @@ export default function Reportes() {
         />
       </View>
 
-      {/* CAMBIO: Mostrar guardias como información secundaria */}
       <View style={styles.infoRow}>
         <Ionicons name="people-outline" size={16} color={COLORS.textSecondary} />
         <Text style={styles.infoText}>Guardias: {formatGuardias(item.guardias)}</Text>
@@ -223,9 +221,20 @@ export default function Reportes() {
             <Text style={styles.descripcionText}>{item.descripcion}</Text>
           </View>
 
-          {item.image && (
+          {/* ✅ USA PRIMERO EL THUMBNAIL, LUEGO IMAGEN COMO FALLBACK */}
+          {(item.thumbnail || item.image) && (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
+              <Image
+                source={{ uri: item.thumbnail || item.image }}
+                style={styles.image}
+                contentFit="cover"
+              />
+              {/* ✅ INDICADOR DE CALIDAD OPTIMIZADA */}
+              {item.thumbnail && (
+                <View style={styles.optimizedBadge}>
+                  <Text style={styles.optimizedText}>✓ Optimizada</Text>
+                </View>
+              )}
             </View>
           )}
         </View>
@@ -243,6 +252,12 @@ export default function Reportes() {
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        // ✅ OPTIMIZACIONES PARA MEJOR RENDIMIENTO:
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={50}
+        windowSize={7}
+        initialNumToRender={8}
+        removeClippedSubviews={true}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

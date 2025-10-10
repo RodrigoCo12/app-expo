@@ -330,9 +330,20 @@ export default function Entradas() {
 
       {expandedId === item._id && (
         <View style={styles.expandedContent}>
-          {item.image && (
+          {/* ✅ USA PRIMERO EL THUMBNAIL, LUEGO IMAGEN COMO FALLBACK */}
+          {(item.thumbnail || item.image) && (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
+              <Image
+                source={{ uri: item.thumbnail || item.image }}
+                style={styles.image}
+                contentFit="cover"
+              />
+              {/* ✅ INDICADOR VISUAL PARA SABER QUE ES OPTIMIZADO */}
+              {item.thumbnail && (
+                <View style={styles.optimizedBadge}>
+                  <Text style={styles.optimizedText}>✓ Optimizada</Text>
+                </View>
+              )}
             </View>
           )}
 
@@ -363,6 +374,12 @@ export default function Entradas() {
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        // ✅ OPTIMIZACIONES PARA MEJOR RENDIMIENTO:
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={50}
+        windowSize={7}
+        initialNumToRender={8}
+        removeClippedSubviews={true}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -378,7 +395,7 @@ export default function Entradas() {
             <View style={styles.header}>
               <View style={styles.headerDate}>
                 <DateSelector
-                  selectedDate={fechaFinFiltro} // Mostrar la fecha final como referencia
+                  selectedDate={fechaFinFiltro}
                   onDateChange={handleDateChange}
                   onClearDate={handleClearDate}
                   placeholder={getDateDisplayText()}
@@ -424,7 +441,6 @@ export default function Entradas() {
                 : "Puedes ver todas las entradas registradas"}
             </Text>
 
-            {/* BOTÓN MODIFICADO: Ahora muestra "Mostrar todas las entradas" en lugar de "Registrar Entrada" */}
             <TouchableOpacity style={styles.button} onPress={mostrarTodasLasEntradas}>
               <Text style={styles.buttonText}>Mostrar todas las entradas</Text>
             </TouchableOpacity>

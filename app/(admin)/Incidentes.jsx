@@ -168,7 +168,6 @@ export default function Incidentes() {
       <View style={styles.incidentHeader}>
         <View style={styles.locationContainer}>
           <View style={styles.locationHeader}>
-            {/* <Ionicons name="location-outline" size={20} color={COLORS.primary} /> */}
             <Text style={styles.locationTitle} numberOfLines={2}>
               {item.location}
             </Text>
@@ -221,10 +220,20 @@ export default function Incidentes() {
             <Text style={styles.descriptionText}>{item.description}</Text>
           </View>
 
-          {/* Imagen si existe */}
-          {item.image && (
+          {/* ✅ USA PRIMERO EL THUMBNAIL, LUEGO IMAGEN COMO FALLBACK */}
+          {(item.thumbnail || item.image) && (
             <View style={styles.imageContainer}>
-              <Image source={{ uri: item.image }} style={styles.image} contentFit="cover" />
+              <Image
+                source={{ uri: item.thumbnail || item.image }}
+                style={styles.image}
+                contentFit="cover"
+              />
+              {/* ✅ INDICADOR VISUAL PARA SABER QUE ES OPTIMIZADO */}
+              {item.thumbnail && (
+                <View style={styles.optimizedBadge}>
+                  <Text style={styles.optimizedText}>✓ Optimizada</Text>
+                </View>
+              )}
             </View>
           )}
         </View>
@@ -242,6 +251,12 @@ export default function Incidentes() {
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        // ✅ OPTIMIZACIONES PARA MEJOR RENDIMIENTO:
+        maxToRenderPerBatch={5}
+        updateCellsBatchingPeriod={50}
+        windowSize={7}
+        initialNumToRender={8}
+        removeClippedSubviews={true}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

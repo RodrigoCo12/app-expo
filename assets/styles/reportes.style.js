@@ -2,6 +2,31 @@ import { StyleSheet } from "react-native";
 import COLORS from "../../constants/colors";
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    position: "relative",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  image: {
+    width: 200,
+    height: 150,
+    borderRadius: 8,
+    backgroundColor: COLORS.background,
+  },
+  optimizedBadge: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    backgroundColor: COLORS.success,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  optimizedText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: "bold",
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
