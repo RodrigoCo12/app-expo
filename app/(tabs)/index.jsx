@@ -125,7 +125,7 @@ export default function Entrada() {
     }
   };
 
-  // Tomar foto con la cámara (OPCIONAL)
+  // Tomar foto con la cámara (OBLIGATORIA)
   const takePhoto = async () => {
     try {
       // Verificar permisos de cámara
@@ -144,7 +144,7 @@ export default function Entrada() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.7,
+        quality: 0.5,
         cameraType: ImagePicker.CameraType.back,
       });
 
@@ -178,10 +178,16 @@ export default function Entrada() {
       return;
     }
 
+    // VALIDACIÓN DE FOTO OBLIGATORIA
+    if (!image) {
+      Alert.alert("Error", "Debes tomar una foto para registrar la entrada");
+      return;
+    }
+
     // CONFIRMACIÓN ANTES DE REGISTRAR ENTRADA
     Alert.alert(
       "Confirmar Entrada",
-      `¿Estás seguro de registrar la entrada para el Guardia ${numeroGuardia}?${!image ? "\n\nNota: No se ha tomado ninguna foto." : ""}`,
+      `¿Estás seguro de registrar la entrada para el Guardia ${numeroGuardia}?`,
       [
         {
           text: "Cancelar",
@@ -199,16 +205,15 @@ export default function Entrada() {
               formData.append("numero_guardia", numeroGuardia.toString());
               formData.append("nombre", nombre);
 
-              if (image) {
-                const fileType = image.split(".").pop();
-                const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
+              // La imagen ahora es obligatoria
+              const fileType = image.split(".").pop();
+              const mimeType = `image/${fileType === "jpg" ? "jpeg" : fileType}`;
 
-                formData.append("image", {
-                  uri: image,
-                  name: `entrada_image.${fileType}`,
-                  type: mimeType,
-                });
-              }
+              formData.append("image", {
+                uri: image,
+                name: `entrada_image.${fileType}`,
+                type: mimeType,
+              });
 
               const response = await fetch(`${API_URL}/entrada`, {
                 method: "POST",
@@ -493,9 +498,9 @@ export default function Entrada() {
               />
             </View>
 
-            {/* Imagen - MODIFICADO: Opcional */}
+            {/* Imagen - MODIFICADO: Obligatoria */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Foto (Opcional)</Text>
+              <Text style={styles.label}>Foto*</Text>
               <TouchableOpacity style={styles.imagePicker} onPress={takePhoto}>
                 {image ? (
                   <View style={styles.previewContainer}>
@@ -509,22 +514,25 @@ export default function Entrada() {
                     <Ionicons name="camera" size={40} color={COLORS.primary} />
                     <Text style={styles.placeholderText}>Toca para tomar foto</Text>
                     <Text style={styles.placeholderSubtext}>
-                      Opcional - Usa la cámara de tu dispositivo
+                      Obligatorio - Usa la cámara de tu dispositivo
                     </Text>
                   </View>
                 )}
               </TouchableOpacity>
               {!image && (
-                <Text style={styles.optionalText}>
-                  * La foto es opcional, puedes registrar la entrada sin imagen
+                <Text style={styles.requiredText}>
+                  * La foto es obligatoria para registrar la entrada
                 </Text>
               )}
             </View>
 
             <TouchableOpacity
-              style={[styles.button, (!nombre || !numeroGuardia) && styles.buttonDisabled]}
+              style={[
+                styles.button,
+                (!nombre || !numeroGuardia || !image) && styles.buttonDisabled,
+              ]}
               onPress={handleSubmit}
-              disabled={loading || !nombre || !numeroGuardia}
+              disabled={loading || !nombre || !numeroGuardia || !image}
             >
               {loading ? (
                 <ActivityIndicator color={COLORS.white} />

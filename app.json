@@ -2,7 +2,7 @@
   "expo": {
     "name": "Supervisión",
     "slug": "mobile",
-    "version": "1.2.1",
+    "version": "1.5.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mobile",
@@ -18,7 +18,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.lambetzu.mobile",
-      "versionCode": 6
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",
