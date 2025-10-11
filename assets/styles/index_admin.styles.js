@@ -2,6 +2,82 @@ import { StyleSheet } from "react-native";
 import COLORS from "../../constants/colors";
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    backgroundColor: COLORS.background,
+    margin: 20,
+    borderRadius: 12,
+    overflow: "hidden",
+    maxHeight: "90%",
+    width: "90%",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: COLORS.primary,
+  },
+  modalHeaderInfo: {
+    flex: 1,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: COLORS.white,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: COLORS.white,
+    opacity: 0.8,
+    marginTop: 4,
+  },
+  closeButton: {
+    padding: 4,
+  },
+  imageExpandidaContainer: {
+    width: "100%",
+    height: 400, // ✅ Alto fijo en lugar de flex
+    backgroundColor: "#000",
+  },
+  imageExpandida: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
+  },
+  modalFooter: {
+    padding: 12,
+    backgroundColor: COLORS.card,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+  },
+  modalFooterText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+  },
+  expandIndicator: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  expandText: {
+    fontSize: 10,
+    color: COLORS.white,
+    fontWeight: "500",
+  },
   imageContainer: {
     position: "relative",
     alignItems: "center",

@@ -7,6 +7,7 @@ import {
   RefreshControl,
   Image,
   Alert,
+  Modal, // ✅ NUEVO: Para el modal de imagen expandida
 } from "react-native";
 import { useAuthStore } from "../../store/authStore";
 import { useEffect, useState } from "react";
@@ -32,6 +33,10 @@ export default function Entradas() {
   const [expandedId, setExpandedId] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState("Todos");
 
+  // ✅ NUEVO: Estado para el modal de imagen expandida
+  const [modalVisible, setModalVisible] = useState(false);
+  const [imagenExpandida, setImagenExpandida] = useState(null);
+
   // Por defecto: últimas 24 horas
   const [fechaInicioFiltro, setFechaInicioFiltro] = useState(() => {
     const now = new Date();
@@ -42,6 +47,26 @@ export default function Entradas() {
   const [fechaFinFiltro, setFechaFinFiltro] = useState(new Date());
   const [filtroActivo, setFiltroActivo] = useState(false);
   const [filtroDefault, setFiltroDefault] = useState(true); // Controlar si es filtro por defecto
+
+  // ✅ NUEVO: Función para expandir imagen
+  const expandirImagen = (item) => {
+    // console.log("++++" + item.image);
+    if (item.image) {
+      setImagenExpandida({
+        uri: item.image, // ✅ USA LA IMAGEN ORIGINAL, NO EL THUMBNAIL
+        nombre: item.nombre,
+        locacion: item.locacion,
+        fecha: item.entrada,
+      });
+      setModalVisible(true);
+    }
+  };
+
+  // ✅ NUEVO: Función para cerrar imagen expandida
+  const cerrarImagenExpandida = () => {
+    setModalVisible(false);
+    setImagenExpandida(null);
+  };
 
   const fetchEntradas = async (pageNum = 1, refresh = false) => {
     // Verificar si hay token antes de hacer la petición
@@ -330,9 +355,13 @@ export default function Entradas() {
 
       {expandedId === item._id && (
         <View style={styles.expandedContent}>
-          {/* ✅ USA PRIMERO EL THUMBNAIL, LUEGO IMAGEN COMO FALLBACK */}
+          {/* ✅ USA PRIMERO EL THUMBNAIL, PERO AHORA ES TOCABLE PARA VER LA ORIGINAL */}
           {(item.thumbnail || item.image) && (
-            <View style={styles.imageContainer}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              onPress={() => expandirImagen(item)} // ✅ NUEVO: Al tocar expande
+              activeOpacity={0.7}
+            >
               <Image
                 source={{ uri: item.thumbnail || item.image }}
                 style={styles.image}
@@ -344,7 +373,12 @@ export default function Entradas() {
                   <Text style={styles.optimizedText}>✓ Optimizada</Text>
                 </View>
               )}
-            </View>
+              {/* ✅ NUEVO: INDICADOR DE QUE SE PUEDE EXPANDIR */}
+              <View style={styles.expandIndicator}>
+                <Ionicons name="expand-outline" size={16} color={COLORS.white} />
+                <Text style={styles.expandText}>Toca para expandir</Text>
+              </View>
+            </TouchableOpacity>
           )}
 
           <View style={styles.detailsContainer}>
@@ -447,6 +481,51 @@ export default function Entradas() {
           </View>
         }
       />
+
+      {/* ✅ NUEVO: MODAL PARA IMAGEN EXPANDIDA */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={cerrarImagenExpandida}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Header del modal */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHeaderInfo}>
+                <Text style={styles.modalTitle}>{imagenExpandida?.nombre}</Text>
+                <Text style={styles.modalSubtitle}>
+                  {imagenExpandida?.locacion} •{" "}
+                  {imagenExpandida?.fecha ? formatDateTime(imagenExpandida.fecha) : ""}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={cerrarImagenExpandida} style={styles.closeButton}>
+                <Ionicons name="close" size={24} color={COLORS.white} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Imagen expandida */}
+            <View style={styles.imageExpandidaContainer}>
+              {/* {console.log(imagenExpandida?.uri)}
+              <Text>holdddddddddddddddddddddddddddddda</Text> */}
+              <Image
+                source={{ uri: imagenExpandida?.uri }}
+                style={styles.imageExpandida}
+                resizeMode="contain"
+              />
+            </View>
+
+            {/* Footer informativo */}
+            <View style={styles.modalFooter}>
+              <Text style={styles.modalFooterText}>
+                Imagen original •{" "}
+                {imagenExpandida?.uri?.includes("cloudinary") ? "Cloudinary" : "Sistema"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

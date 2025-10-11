@@ -202,7 +202,7 @@ export default function Reporte() {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.3, // ✅ REDUCIDO de 0.2 a 0.3 para mejor calidad sin exceso
+        quality: 0.4, // ✅ REDUCIDO de 0.2 a 0.3 para mejor calidad sin exceso
       });
 
       if (!result.canceled) {
