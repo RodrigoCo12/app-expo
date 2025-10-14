@@ -164,17 +164,17 @@ export default function GuardiasActivos() {
     const horaReporte = new Date(reporte.createdAt);
     const horaEsperadaDate = new Date(horaEsperada.fechaCompleta);
 
-    // Calcular diferencia en minutos
+    // Calcular diferencia en minutos (solo diferencia positiva = después de la hora esperada)
     const diferencia = horaReporte - horaEsperadaDate;
-    const diferenciaMinutos = Math.abs(diferencia) / (1000 * 60);
+    const diferenciaMinutos = diferencia / (1000 * 60);
 
-    // Si el reporte se hizo después de la hora esperada + 15 minutos = Atrasado
-    if (diferencia > 0 && diferenciaMinutos > 15) {
-      return "Atrasado";
+    // Reporte está A TIEMPO si se hizo dentro de los primeros 20 minutos de la hora esperada
+    if (diferenciaMinutos >= 0 && diferenciaMinutos < 21) {
+      return "A tiempo";
     }
 
-    // Si el reporte se hizo antes de la hora esperada o dentro de los 15 minutos = A tiempo
-    return "A tiempo";
+    // Cualquier otro caso = ATRASADO
+    return "Atrasado";
   };
 
   // Obtener guardias activos en una hora específica - CORREGIDO
